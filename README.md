@@ -4,13 +4,16 @@ A simple Flutter application that retrieves daily meal menus from a public API a
 
 ---
 
-## 🚀 Features
+## 🍀   Features
 
-- Fetching menu data using **Dio**
-- Model architecture (`menu_item.dart`, `dayli_menu.dart`)
-- Asynchronous loading and error handling
-- Data refresh support
-- Ready-made structure for project scaling
+- Display daily menus with items and calories.
+- Pull-to-refresh support to reload the menu.
+- Cached images for better performance using `cached_network_image`.
+- Error handling for network failures.
+- Clean MVVM architecture with separation of concerns:
+  - **Model**: `MenuItem`, `DailyMenu`.
+  - **ViewModel**: `MenuViewModel`.
+  - **View**: `MenuScreen`.
 
 ---
 
@@ -25,15 +28,25 @@ A simple Flutter application that retrieves daily meal menus from a public API a
 
 ## 📁 Project Structure
 
-- lib/
-- ├── models/
-- │ ├── menu_item.dart - **single meal model**
-- │ └── dayli_menu.dart - **daily menu model**
-- ├── services/
-- │ └── api_service.dart - **API operations using Dio**
-- ├── screens/
-- │ └── ... - **application UI screens**
-- └── main.dart - **entry point**
+lib/  
+├── models/  
+│   ├── menu_item.dart  
+│   └── daily_menu.dart  
+├── view_models/  
+│   └── menu_view_model.dart  
+├── services/  
+│   └── api_service.dart  
+└── screens/  
+    └── menu_screen.dart  
+
+- 🧩models/ — Data models (MenuItem, DailyMenu).
+
+- 👓view_models/ — Handles state management and business logic.
+
+- 🔗services/ — API service using Dio.
+
+- 👀screens/ — UI screens that consume the ViewModel.
+
 
 ---
 
@@ -43,6 +56,14 @@ A simple Flutter application that retrieves daily meal menus from a public API a
 
  ---
 
- ## License
+## 🔗 Dependencies
+
+- [Provider](https://pub.dev/packages/provider)
+- [Dio](https://pub.dev/packages/dio)
+- [ImageCaching](https://pub.dev/packages/cached_network_image)
+
+ ---
+
+ ## 📜 License
 
   Apache 2.0 License  © [Atoktobekov](https://github.com/Atoktobekov)  
