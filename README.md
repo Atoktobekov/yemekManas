@@ -1,16 +1,48 @@
-# manas_yemek
+# Manas Yemek App 🍛
 
-App for yemekhane of Manas University
+A simple Flutter application that retrieves daily meal menus from a public API and displays them in a user-friendly interface.
 
-## Getting Started
+---
 
-This project is a starting point for a Flutter application.
+## 🚀 Features
 
-A few resources to get you started if this is your first Flutter project:
+- Fetching menu data using **Dio**
+- Model architecture (`menu_item.dart`, `dayli_menu.dart`)
+- Asynchronous loading and error handling
+- Data refresh support
+- Ready-made structure for project scaling
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
+---
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+## 🧩 Technologies
+
+- [Flutter](https://flutter.dev/) (SDK 3.x)  
+- [Dio](https://pub.dev/packages/dio) — HTTP client for REST API  
+- **JSON Serialization** — data transformation into models  
+- **Material Design** — visual interface style  
+
+---
+
+## 📁 Project Structure
+
+- lib/
+- ├── models/
+- │ ├── menu_item.dart - **single meal model**
+- │ └── dayli_menu.dart - **daily menu model**
+- ├── services/
+- │ └── api_service.dart - **API operations using Dio**
+- ├── screens/
+- │ └── ... - **application UI screens**
+- └── main.dart - **entry point**
+
+---
+
+🌐 API
+
+- Using public API: [YemekManas](https://yemek-api.vercel.app/)
+
+ ---
+
+ ## License
+
+  Apache 2.0 License  © [Atoktobekov](https://github.com/Atoktobekov)  
