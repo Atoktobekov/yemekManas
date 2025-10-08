@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'services/api_service.dart';
+import 'view_models/menu_view_model.dart';
 import 'screens/menu_screen.dart';
 
 void main() {
@@ -10,13 +13,18 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Yemek Menüsü',
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.orange),
-        useMaterial3: true,
+    return MultiProvider(
+      providers: [
+        ChangeNotifierProvider(
+          create: (_) => MenuViewModel(ApiService()),
+        ),
+      ],
+      child: MaterialApp(
+        debugShowCheckedModeBanner: false,
+        title: 'Daily Menu',
+        theme: ThemeData(primarySwatch: Colors.blue),
+        home: const MenuScreen(),
       ),
-      home: const MenuScreen(),
     );
   }
 }
