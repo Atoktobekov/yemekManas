@@ -2,7 +2,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import '../view_models/menu_view_model.dart';
+import '../view_models/menu_view_model.dart'; 
 
 class MenuScreen extends StatelessWidget {
   const MenuScreen({super.key});
