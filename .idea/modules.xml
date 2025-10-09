@@ -2,7 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/manas_yemek.iml" filepath="$PROJECT_DIR$/manas_yemek.iml" />
+      <module fileurl="file://$PROJECT_DIR$/Yemek.iml" filepath="$PROJECT_DIR$/Yemek.iml" />
       <module fileurl="file://$PROJECT_DIR$/android/manas_yemek_android.iml" filepath="$PROJECT_DIR$/android/manas_yemek_android.iml" />
     </modules>
   </component>

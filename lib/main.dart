@@ -1,3 +1,4 @@
+import 'package:ManasYemek/screens/menu_screen2.dart';
 import 'package:ManasYemek/theme/theme.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -24,7 +25,7 @@ class MyApp extends StatelessWidget {
         debugShowCheckedModeBanner: false,
         title: 'Daily Menu',
         theme: appTheme,
-        home: const MenuScreen(),
+        home: const MenuScreen2(),
       ),
     );
   }
