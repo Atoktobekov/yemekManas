@@ -1,5 +1,5 @@
 import 'package:flutter/foundation.dart';
-import 'package:manas_yemek/models/models.dart';
+import '../models/models.dart';
 import '../services/api_service.dart';
 
 enum MenuStatus { initial, loading, loaded, error }
