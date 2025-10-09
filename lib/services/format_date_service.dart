@@ -6,10 +6,10 @@ String formatDate(String raw) {
     final dt = DateTime.parse(raw);
     final now = DateTime.now();
     if (dt.year == now.year && dt.month == now.month && dt.day == now.day) {
-      return 'Сегодня';
+      return 'Bugün';
     }
     if (dt.year == now.year && dt.month == now.month && dt.day == now.day+1 || dt.year == now.year && dt.month == now.month+1 && dt.day == 1 || dt.year == now.year+1 && dt.month == 1 && dt.day == 1) {
-      return 'Завтра';
+      return 'Yarın';
     }
     final fmt = DateFormat('EEEE, d MMM', 'ru');
     return toBeginningOfSentenceCase(fmt.format(dt)) ?? fmt.format(dt);
