@@ -17,9 +17,11 @@ class _MenuScreen2State extends State<MenuScreen2> {
   bool _isAnimating = false;
 
   // Параметры — можно подогнать
-  static const double edgeZone = 100.0; // от краёв экрана где свайп разрешён
-  static const double distanceThreshold = 120.0; // минимальная дистанция для перелиста
-  static const double velocityThreshold = 700.0; // минимальная скорость для перелиста
+  static const double edgeZone = 195.0; // от краёв экрана где свайп разрешён
+  static const double distanceThreshold =
+      120.0; // минимальная дистанция для перелиста
+  static const double velocityThreshold =
+      700.0; // минимальная скорость для перелиста
 
   @override
   void initState() {
@@ -57,7 +59,8 @@ class _MenuScreen2State extends State<MenuScreen2> {
     final height = MediaQuery.of(context).size.height;
     final delta = _dragCurrentY - _dragStartY; // положительное = движение вниз
     final vy = details.velocity.pixelsPerSecond.dy; // положительное = вниз
-    final currentPageDouble = _pageController.page ?? _pageController.initialPage.toDouble();
+    final currentPageDouble =
+        _pageController.page ?? _pageController.initialPage.toDouble();
     final currentPage = currentPageDouble; // double
 
     int targetPage = currentPageDouble.round();
