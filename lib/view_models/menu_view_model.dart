@@ -10,26 +10,33 @@ class MenuViewModel extends ChangeNotifier {
   MenuViewModel(this._apiService);
 
   MenuStatus _status = MenuStatus.initial;
+
   MenuStatus get status => _status;
 
   List<DailyMenu> _menus = [];
+
   List<DailyMenu> get menus => _menus;
 
   String _errorMessage = '';
+
   String get errorMessage => _errorMessage;
 
   Future<void> fetchMenu() async {
     _status = MenuStatus.loading;
+    _errorMessage = '';
     notifyListeners();
 
     try {
       _menus = await _apiService.fetchMenu();
       _status = MenuStatus.loaded;
-    } catch (e) {
-      _errorMessage = e.toString();
+    } catch (e, st) {
+      // Логируем полную ошибку в debug, чтобы видеть в adb logcat
+      debugPrint('FetchMenu error: $e\n$st');
+      _errorMessage = 'Не удалось загрузить меню. Попробуйте позже.';
+      _menus = [];
       _status = MenuStatus.error;
+    } finally {
+      notifyListeners();
     }
-
-    notifyListeners();
   }
 }

@@ -9,12 +9,18 @@ class DailyMenu {
     required this.items,
   });
 
-  factory DailyMenu.fromJson(Map<String, dynamic> json) {
-    final itemsJson = json['items'] as List;
-    final itemsList = itemsJson.map((e) => MenuItem.fromJson(e)).toList();
-    return DailyMenu(
-      date: json['at'],
-      items: itemsList,
-    );
+  factory DailyMenu.fromJson(Map<String, dynamic>? json) {
+    if (json == null) {
+      return DailyMenu(date: '', items: []);
+    }
+
+    final date = json['at']?.toString() ?? '';
+
+    final itemsJson = json['items'] as List? ?? [];
+    final itemsList = itemsJson
+        .map((e) => MenuItem.fromJson(e as Map<String, dynamic>?))
+        .toList();
+
+    return DailyMenu(date: date, items: itemsList);
   }
 }

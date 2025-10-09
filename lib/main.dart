@@ -1,3 +1,4 @@
+import 'package:ManasYemek/theme/theme.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'services/api_service.dart';
@@ -22,7 +23,7 @@ class MyApp extends StatelessWidget {
       child: MaterialApp(
         debugShowCheckedModeBanner: false,
         title: 'Daily Menu',
-        theme: ThemeData(primarySwatch: Colors.blue),
+        theme: appTheme,
         home: const MenuScreen(),
       ),
     );

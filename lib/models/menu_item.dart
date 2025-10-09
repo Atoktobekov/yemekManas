@@ -9,11 +9,21 @@ class MenuItem {
     required this.photoUrl,
   });
 
-  factory MenuItem.fromJson(Map<String, dynamic> json) {
+  factory MenuItem.fromJson(Map<String, dynamic>? json) {
+    if (json == null) {
+      return MenuItem(name: '', caloriesCount: 0, photoUrl: '');
+    }
+
+    final name = json['name']?.toString() ?? '';
+    final caloriesCount = (json['calories_count'] is int)
+        ? json['calories_count'] as int
+        : int.tryParse(json['calories_count']?.toString() ?? '') ?? 0;
+    final photoUrl = json['photo_url']?.toString() ?? '';
+
     return MenuItem(
-      name: json['name'],
-      caloriesCount: json['calories_count'],
-      photoUrl: json['photo_url'],
+      name: name,
+      caloriesCount: caloriesCount,
+      photoUrl: photoUrl,
     );
   }
 }
