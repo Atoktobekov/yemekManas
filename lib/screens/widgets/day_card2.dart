@@ -103,7 +103,7 @@ class _DayCard2State extends State<DayCard2> {
               Padding(
                 padding: const EdgeInsets.all(8),
                 child: Text(
-                  'Итого: ${widget.dayMenu.items.fold<int>(0, (sum, item) => sum + item.caloriesCount)} kcal',
+                  'Toplam: ${widget.dayMenu.items.fold<int>(0, (sum, item) => sum + item.caloriesCount)} kcal',
                   style: Theme.of(context).textTheme.headlineMedium,
                 ),
               ),

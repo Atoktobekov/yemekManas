@@ -17,7 +17,7 @@ class _MenuScreen2State extends State<MenuScreen2> {
   bool _isAnimating = false;
 
   // Параметры — можно подогнать
-  static const double edgeZone = 195.0; // от краёв экрана где свайп разрешён
+  static const double edgeZone = 215.0; // от краёв экрана где свайп разрешён
   static const double distanceThreshold =
       120.0; // минимальная дистанция для перелиста
   static const double velocityThreshold =
