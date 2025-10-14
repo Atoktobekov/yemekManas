@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../view_models/menu_view_model.dart';
-import 'widgets/day_card.dart';
+import 'widgets/old/day_card.dart';
 
 class MenuScreen extends StatelessWidget {
   const MenuScreen({super.key});

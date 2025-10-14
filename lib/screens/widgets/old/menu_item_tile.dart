@@ -1,6 +1,6 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
-import '../../models/menu_item.dart';
+import 'package:ManasYemek/models/menu_item.dart';
 
 class MenuItemTile extends StatelessWidget {
   final MenuItem item;
