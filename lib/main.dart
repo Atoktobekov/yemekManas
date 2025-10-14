@@ -23,7 +23,6 @@ class MyApp extends StatelessWidget {
       ],
       child: MaterialApp(
         debugShowCheckedModeBanner: false,
-        title: 'Daily Menu',
         theme: appTheme,
         home: const MenuScreen2(),
       ),

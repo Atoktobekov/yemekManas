@@ -13,7 +13,7 @@ final ThemeData appTheme = ThemeData(
 
   appBarTheme: const AppBarTheme(
     elevation: 4,
-    backgroundColor: Colors.deepOrange,
+    backgroundColor: Colors.deepOrangeAccent,
     centerTitle: true,
   ),
 
