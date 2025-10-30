@@ -1,17 +1,17 @@
 import 'package:flutter/material.dart';
-import '../../models/models.dart';
-import '../../services/format_date_service.dart';
+import 'package:ManasYemek/models/models.dart';
+import 'package:ManasYemek/services/format_date_service.dart';
 
-class DayCard2 extends StatefulWidget {
+class DayCard extends StatefulWidget {
   final DailyMenu dayMenu;
 
-  const DayCard2({super.key, required this.dayMenu});
+  const DayCard({super.key, required this.dayMenu});
 
   @override
-  State<DayCard2> createState() => _DayCard2State();
+  State<DayCard> createState() => _DayCardState();
 }
 
-class _DayCard2State extends State<DayCard2> {
+class _DayCardState extends State<DayCard> {
   late List<int> _reloadKeys;
 
   @override

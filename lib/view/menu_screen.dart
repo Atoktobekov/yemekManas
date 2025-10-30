@@ -4,14 +4,14 @@ import 'package:ManasYemek/view_models/menu_view_model.dart';
 import 'widgets/menu_content.dart';
 import 'widgets/vertical_swipe_mixin.dart';
 
-class MenuScreen2 extends StatefulWidget {
-  const MenuScreen2({super.key});
+class MenuScreen extends StatefulWidget {
+  const MenuScreen({super.key});
 
   @override
-  State<MenuScreen2> createState() => _MenuScreen2State();
+  State<MenuScreen> createState() => _MenuScreenState();
 }
 
-class _MenuScreen2State extends State<MenuScreen2>
+class _MenuScreenState extends State<MenuScreen>
     with VerticalPageSwipeHandler {
   late PageController _pageController;
 
