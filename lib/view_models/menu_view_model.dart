@@ -1,11 +1,14 @@
+import 'package:ManasYemek/services/api_service2.dart';
 import 'package:flutter/foundation.dart';
 import 'package:ManasYemek/models/models.dart';
 import 'package:ManasYemek/services/api_service.dart';
+import 'package:get_it/get_it.dart';
+import 'package:talker_flutter/talker_flutter.dart';
 
 enum MenuStatus { initial, loading, loaded, error }
 
 class MenuViewModel extends ChangeNotifier {
-  final ApiService _apiService;
+  final ApiService2 _apiService;
 
   MenuViewModel(this._apiService);
 
@@ -30,8 +33,7 @@ class MenuViewModel extends ChangeNotifier {
       _menus = await _apiService.fetchMenu();
       _status = MenuStatus.loaded;
     } catch (e, st) {
-      // Логируем полную ошибку в debug, чтобы видеть в adb logcat
-      debugPrint('FetchMenu error: $e\n$st');
+      GetIt.instance<Talker>().handle(e, st);
       _errorMessage = 'Не удалось загрузить меню. Попробуйте позже.';
       _menus = [];
       _status = MenuStatus.error;

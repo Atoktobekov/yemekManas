@@ -1,30 +1,36 @@
-import 'package:ManasYemek/view/menu_screen.dart';
-import 'package:ManasYemek/theme/theme.dart';
+import 'dart:async';
+
+import 'package:ManasYemek/app.dart';
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-import 'services/api_service.dart';
-import 'view_models/menu_view_model.dart';
+import 'package:get_it/get_it.dart';
+import 'package:talker_dio_logger/talker_dio_logger.dart';
+import 'package:talker_flutter/talker_flutter.dart';
 
 void main() {
-  runApp(const MyApp());
-}
+  final dioOptions = BaseOptions(
+    baseUrl: 'https://yemek-api.vercel.app/',
+    connectTimeout: const Duration(seconds: 15),
+    receiveTimeout: const Duration(seconds: 15),
+  );
+  final talker = TalkerFlutter.init();
+  final dio = Dio(dioOptions);
 
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+  dio.interceptors.add(
+    TalkerDioLogger(
+      settings: const TalkerDioLoggerSettings(printResponseData: false),
+      talker: talker,
+    ),
+  );
 
-  @override
-  Widget build(BuildContext context) {
-    return MultiProvider(
-      providers: [
-        ChangeNotifierProvider(
-          create: (_) => MenuViewModel(ApiService()),
-        ),
-      ],
-      child: MaterialApp(
-        debugShowCheckedModeBanner: false,
-        theme: appTheme,
-        home: const MenuScreen(),
-      ),
-    );
-  }
+  GetIt.instance.registerSingleton(talker);
+  GetIt.instance.registerSingleton(dio);
+
+  FlutterError.onError = (details) =>
+      GetIt.instance<Talker>().handle(details.exception, details.stack);
+
+  runZonedGuarded(
+    () => runApp(const YemekApp()),
+    (error, stacktrace) => GetIt.instance<Talker>().handle(error, stacktrace),
+  );
 }
