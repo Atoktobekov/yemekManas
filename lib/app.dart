@@ -1,4 +1,3 @@
-import 'package:ManasYemek/services/api_service.dart';
 import 'package:ManasYemek/services/api_service2.dart';
 import 'package:ManasYemek/theme/theme.dart';
 import 'package:ManasYemek/view/menu_screen.dart';
