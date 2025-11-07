@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:ManasYemek/view_models/menu_view_model.dart';
-import 'widgets/menu_content.dart';
-import 'widgets/vertical_swipe_mixin.dart';
+import 'widgets/widgets.dart';
 
 class MenuScreen extends StatefulWidget {
   const MenuScreen({super.key});

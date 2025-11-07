@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:ManasYemek/view_models/menu_view_model.dart';
-import 'package:ManasYemek/view/widgets/day_card.dart';
+import 'package:ManasYemek/view/widgets/widgets.dart';
 
 class MenuContent extends StatelessWidget {
   final PageController pageController;

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:ManasYemek/models/models.dart';
-import 'package:ManasYemek/services/format_date_service.dart';
+import 'package:ManasYemek/services/services.dart';
 
 class DayCard extends StatefulWidget {
   final DailyMenu dayMenu;

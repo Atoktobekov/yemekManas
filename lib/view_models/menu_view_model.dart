@@ -1,4 +1,4 @@
-import 'package:ManasYemek/services/api_service2.dart';
+import 'package:ManasYemek/services/services.dart';
 import 'package:flutter/foundation.dart';
 import 'package:ManasYemek/models/models.dart';
 import 'package:get_it/get_it.dart';
