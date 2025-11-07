@@ -1,33 +1,61 @@
 import 'package:flutter/material.dart';
 
-final ThemeData appTheme = ThemeData(
-  primaryColor: Colors.deepOrange,
+const Color softOrange = Color.fromARGB(255, 255, 165, 82);
+const Color cremeColor = Color(0xFFFFF0D9);
+const Color secondAccent = Color(0xFFE08C4A);
 
-  colorScheme: ColorScheme.fromSeed(
-    seedColor: Colors.deepOrange,
-    primary: Colors.deepOrange,
-    secondary: Colors.orangeAccent,
+final ThemeData appTheme = ThemeData(
+  primaryColor: softOrange,
+
+  colorScheme: ColorScheme(
+    brightness: Brightness.light,
+    primary: softOrange,
+    onPrimary: Colors.white,
+    secondary: secondAccent,
+    onSecondary: Colors.white,
+    surface: cremeColor,
+    onSurface: Colors.black87,
+    error: Colors.redAccent,
+    onError: Colors.white,
   ),
 
-  scaffoldBackgroundColor: Colors.white,
+  scaffoldBackgroundColor: cremeColor,
 
   appBarTheme: const AppBarTheme(
-    elevation: 4,
-    backgroundColor: Colors.deepOrangeAccent,
+    elevation: 3,
+    backgroundColor: softOrange,
     centerTitle: true,
+    titleTextStyle: TextStyle(
+      color: Colors.white,
+      fontSize: 18,
+      fontWeight: FontWeight.bold,
+    ),
+    iconTheme: IconThemeData(color: Colors.white),
   ),
 
   textTheme: const TextTheme(
     headlineMedium: TextStyle(
       fontSize: 18,
       fontWeight: FontWeight.bold,
-      color: Colors.deepOrange,
+      color: Color(0xFFDCA56C),
     ),
-
-    titleMedium: TextStyle(fontSize: 16),
-
-    bodySmall: TextStyle(fontSize: 14),
+    titleMedium: TextStyle(fontSize: 16, color: Colors.black87),
+    bodySmall: TextStyle(fontSize: 14, color: Colors.black87),
   ),
 
-  iconTheme: const IconThemeData(color: Colors.deepOrangeAccent),
+  iconTheme: const IconThemeData(color: secondAccent),
+
+  floatingActionButtonTheme: const FloatingActionButtonThemeData(
+    backgroundColor: softOrange,
+    foregroundColor: Colors.white,
+  ),
+
+  elevatedButtonTheme: ElevatedButtonThemeData(
+    style: ElevatedButton.styleFrom(
+      backgroundColor: softOrange,
+      foregroundColor: Colors.white,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+    ),
+  ),
 );
