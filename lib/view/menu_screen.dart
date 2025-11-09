@@ -48,7 +48,6 @@ class _MenuScreenState extends State<MenuScreen>
   @override
   Widget build(BuildContext context) {
     final viewModel = context.watch<MenuViewModel>();
-    final theme = Theme.of(context);
 
     return Scaffold(
       backgroundColor: cremeColor,
@@ -58,6 +57,7 @@ class _MenuScreenState extends State<MenuScreen>
           style: TextStyle(
             color: Colors.white,
             fontWeight: FontWeight.w600,
+            fontSize: 20
           ),
         ),
         backgroundColor: softOrange,
@@ -105,7 +105,7 @@ class _MenuScreenState extends State<MenuScreen>
 
             case MenuStatus.loaded:
               return Container(
-                color: cremeColor,
+                color: secondCremeColor,
                 child: MenuContent(
                   pageController: _pageController,
                   viewModel: viewModel,

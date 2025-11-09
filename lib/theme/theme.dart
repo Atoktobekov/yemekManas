@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 
-const Color softOrange = Color.fromARGB(255, 255, 165, 82);
-const Color cremeColor = Color(0xFFFFF0D9);
-const Color secondAccent = Color(0xFFE08C4A);
+const Color softOrange = Color(0xFFFFA552);
+const Color cremeColor = Color(0xFFFFE6C8);
+const Color secondCremeColor = Color(0xFFFAEEDD);
+const Color secondAccent = Color(0xFFD1783A);
 
 final ThemeData appTheme = ThemeData(
   primaryColor: softOrange,
