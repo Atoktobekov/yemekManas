@@ -11,7 +11,7 @@ class ApiService2 {
       final data = response.data;
 
       if (data is! List) {
-        throw Exception('Неверный формат API: ожидается List');
+        throw Exception('Incorrect Format API: waiting List');
       }
 
       return data
@@ -19,7 +19,7 @@ class ApiService2 {
           .toList();
     } on DioException catch (e) {
       GetIt.instance<Talker>().handle('DioException: ${e.response?.data ?? e.message}');
-      throw Exception('Ошибка загрузки данных: ${e.message}');
+      throw Exception('Data fetching error: ${e.message}');
     } catch (e) {
       GetIt.instance<Talker>().handle(e);
       rethrow;

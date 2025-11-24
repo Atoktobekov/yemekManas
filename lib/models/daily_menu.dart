@@ -9,6 +9,8 @@ class DailyMenu {
     required this.items,
   });
 
+  int get totalCalories => items.fold(0, (sum, item) => sum + item.caloriesCount);
+
   factory DailyMenu.fromJson(Map<String, dynamic>? json) {
     if (json == null) {
       return DailyMenu(date: '', items: []);

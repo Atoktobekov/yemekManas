@@ -1,3 +1,2 @@
-export 'day_card.dart';
-export 'menu_content.dart';
-export 'vertical_swipe_mixin.dart';
+export 'menu_item_widget.dart';
+export 'day_menu_widget.dart';

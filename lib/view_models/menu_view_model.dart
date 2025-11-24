@@ -33,7 +33,7 @@ class MenuViewModel extends ChangeNotifier {
       _status = MenuStatus.loaded;
     } catch (e, st) {
       GetIt.instance<Talker>().handle(e, st);
-      _errorMessage = 'Не удалось загрузить меню. Попробуйте позже.';
+      _errorMessage = 'Failed downloading menu. Please try again later';
       _menus = [];
       _status = MenuStatus.error;
     } finally {

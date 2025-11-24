@@ -1,6 +1,6 @@
 import 'package:ManasYemek/services/services.dart';
 import 'package:ManasYemek/theme/theme.dart';
-import 'package:ManasYemek/view/menu_screen.dart';
+import 'package:ManasYemek/view/menu_screen2.dart';
 import 'package:ManasYemek/view_models/menu_view_model.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -17,7 +17,7 @@ class YemekApp extends StatelessWidget {
       child: MaterialApp(
         debugShowCheckedModeBanner: false,
         theme: appTheme,
-        home: const MenuScreen(),
+        home: const MenuScreen2(),
       ),
     );
   }

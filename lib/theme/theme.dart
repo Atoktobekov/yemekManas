@@ -6,6 +6,8 @@ const Color secondCremeColor = Color(0xFFFAEEDD);
 const Color secondAccent = Color(0xFFD1783A);
 
 final ThemeData appTheme = ThemeData(
+  fontFamily: 'InstrumentSans',
+
   primaryColor: softOrange,
 
   colorScheme: ColorScheme(
