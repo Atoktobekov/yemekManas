@@ -3,14 +3,14 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:ManasYemek/view_models/menu_view_model.dart';
 
-class MenuScreen2 extends StatefulWidget {
-  const MenuScreen2({super.key});
+class MenuScreen extends StatefulWidget {
+  const MenuScreen({super.key});
 
   @override
-  State<MenuScreen2> createState() => _MenuScreen2State();
+  State<MenuScreen> createState() => _MenuScreenState();
 }
 
-class _MenuScreen2State extends State<MenuScreen2> {
+class _MenuScreenState extends State<MenuScreen> {
   @override
   void initState() {
     super.initState();
