@@ -78,7 +78,7 @@ class _MenuScreenState extends State<MenuScreen> {
                 },
                 child: ListView.separated(
                   padding: const EdgeInsets.symmetric(
-                    horizontal: 16,
+                    horizontal: 10,
                     vertical: 20,
                   ),
                   itemCount: viewModel.menus.length,

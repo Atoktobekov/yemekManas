@@ -68,7 +68,7 @@ class _MenuItemWidgetState extends State<MenuItemWidget> {
             ),
           Expanded(
             child: Padding(
-              padding: const EdgeInsets.all(12),
+              padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 9),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisSize: MainAxisSize.min,
@@ -77,7 +77,7 @@ class _MenuItemWidgetState extends State<MenuItemWidget> {
                     child: Text(
                       widget.item.name,
                       style: const TextStyle(
-                        fontSize: 15,
+                        fontSize: 14,
                         fontWeight: FontWeight.bold,
                       ),
                       maxLines: 2,
@@ -88,7 +88,7 @@ class _MenuItemWidgetState extends State<MenuItemWidget> {
                   Text(
                     '${widget.item.caloriesCount} kcal',
                     style: const TextStyle(
-                      fontSize: 14,
+                      fontSize: 13,
                       fontWeight: FontWeight.w500,
                     ),
                   ),

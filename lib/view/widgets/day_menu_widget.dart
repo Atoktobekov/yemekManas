@@ -10,7 +10,7 @@ class DayMenuWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: const Color(0xFFFFF8EE),
         borderRadius: BorderRadius.circular(16),
@@ -28,9 +28,9 @@ class DayMenuWidget extends StatelessWidget {
         children: [
           Text(
             getWeekdayFromDate(dayMenu.date),
-            style: const TextStyle(fontSize: 30, fontWeight: FontWeight.bold),
+            style: const TextStyle(fontSize: 30, fontWeight: FontWeight.w500),
           ),
-          const SizedBox(height: 20),
+          const SizedBox(height: 8),
           GridView.builder(
             shrinkWrap: true,
             physics: const NeverScrollableScrollPhysics(),
@@ -60,33 +60,37 @@ class _DayKcalAndDate extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(13),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withAlpha(22),
-            offset: const Offset(0, 6),
-            blurRadius: 13,
-            spreadRadius: 0,
+    return Center(
+      child:
+        Container(
+          width: 285,
+          padding: const EdgeInsets.symmetric(horizontal: 25, vertical: 10),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(13),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withAlpha(22),
+                offset: const Offset(0, 6),
+                blurRadius: 13,
+                spreadRadius: 0,
+              ),
+            ],
           ),
-        ],
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Text(
-            '${dayMenu.totalCalories} kcal',
-            style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                '${dayMenu.totalCalories} kcal',
+                style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              ),
+              Text(
+                formatDateToMonthDay(dayMenu.date),
+                style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w500),
+              ),
+            ],
           ),
-          Text(
-            formatDateToMonthDay(dayMenu.date),
-            style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w500),
-          ),
-        ],
-      ),
+        ),
     );
   }
 }
