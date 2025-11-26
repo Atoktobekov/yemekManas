@@ -70,9 +70,9 @@ class _DayKcalAndDate extends StatelessWidget {
             borderRadius: BorderRadius.circular(13),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withAlpha(22),
+                color: Colors.black.withAlpha(4),
                 offset: const Offset(0, 6),
-                blurRadius: 13,
+                blurRadius: 5,
                 spreadRadius: 0,
               ),
             ],
