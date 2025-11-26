@@ -19,11 +19,11 @@ class _MenuItemWidgetState extends State<MenuItemWidget> {
     return Container(
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(10),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withAlpha(18),
-            blurRadius: 13,
+            color: Colors.black.withAlpha(10),
+            blurRadius: 10,
             offset: const Offset(0, 4),
           ),
         ],

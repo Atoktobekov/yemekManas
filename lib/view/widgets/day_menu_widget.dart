@@ -16,9 +16,9 @@ class DayMenuWidget extends StatelessWidget {
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withAlpha(26),
+            color: Colors.black.withAlpha(14),
             offset: const Offset(0, 6),
-            blurRadius: 16,
+            blurRadius: 14,
             spreadRadius: 0,
           ),
         ],
