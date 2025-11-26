@@ -11,7 +11,6 @@ The app focuses on convenience and beautifully displaying information about dish
 - View menu for multiple days ahead.
 - Beautiful cards for dishes with images, name, and calorie count.
 - Total calories per day.
-- Vertical swipe between days with smooth animation.
 - Error handling for data and image loading.
 
 ---
@@ -21,8 +20,6 @@ The app focuses on convenience and beautifully displaying information about dish
 - [Flutter](https://flutter.dev/) (SDK 3.x)  
 - [Dio](https://pub.dev/packages/dio) — HTTP client for REST API  
 - [Provider](https://pub.dev/packages/provider) - State management
-- **JSON Serialization** — data transformation into models  
-- **Material Design** — visual interface style  
 
 ---
 
@@ -30,6 +27,7 @@ The app focuses on convenience and beautifully displaying information about dish
 
 lib/  
 ├── main.dart - **Application entry point**  
+├── app.dart - **App file**  
 ├── theme/  
 │ └── theme.dart - **App theme**  
 ├── models/  
@@ -37,15 +35,15 @@ lib/
 │ ├── daily_menu.dart - **DailyMenu model**  
 │ └── menu_item.dart - **MenuItem model**  
 ├── services/  
-│ ├── api_service.dart - **API communication**  
-│ └── format_date_service.dart - **Date formatting utility**  
+│ └── api_service2.dart - **API communication**  
 ├── view_models/  
 │ └── menu_view_model.dart - **ViewModel for menu and UI state**  
 └── screens/  
-├── menu_screen.dart - **(not currently used)**  
-└── menu_screen2.dart - **Main screen with vertical paging**  
+└── menu_screen.dart - **Main screen with vertical paging**  
 └── widgets/  
-└── day_card2.dart - **Widget for displaying a day's menu**  
+├── menu_item_widget.dart - **Card with details of one meal**  
+├── day_menu_widget.dart - **Widget for displaying a day's menu**  
+└── widgets.dart - **Export for all widget files**
 
 - 🧩models/ — Data models (MenuItem, DailyMenu).
 
