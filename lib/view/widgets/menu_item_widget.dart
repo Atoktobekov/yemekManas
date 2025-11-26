@@ -41,7 +41,7 @@ class _MenuItemWidgetState extends State<MenuItemWidget> {
             ),
             child: Center(
               child: ClipRRect(
-                borderRadius: BorderRadius.circular(22),
+                borderRadius: BorderRadius.circular(10),
                 child: CachedNetworkImage(
                   key: _imageKey,
                   imageUrl: widget.item.photoUrl,
