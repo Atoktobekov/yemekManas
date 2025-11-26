@@ -23,6 +23,16 @@ The app focuses on convenience and beautifully displaying information about dish
 
 ---
 
+## 📸 Screenshots
+
+
+<p align="center">
+  <img src="screenshots/Yemekhane2.png" width="35%">
+  <img src="screenshots/Yemekhane1.png" width="35%">  
+</p>
+
+---
+
 ## 📁 Project Structure
 
 lib/  
