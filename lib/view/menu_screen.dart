@@ -15,11 +15,14 @@ class _MenuScreenState extends State<MenuScreen> {
   void initState() {
     super.initState();
 
-    final viewModel = context.read<MenuViewModel>();
-    if (viewModel.status == MenuStatus.initial) {
-      viewModel.fetchMenu();
-    }
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final viewModel = context.read<MenuViewModel>();
+      if (viewModel.status == MenuStatus.initial) {
+        viewModel.fetchMenu();
+      }
+    });
   }
+
 
   @override
   Widget build(BuildContext context) {
