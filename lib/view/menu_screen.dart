@@ -1,3 +1,4 @@
+import 'package:ManasYemek/view/widgets/day_menu_skeleton.dart';
 import 'package:ManasYemek/view/widgets/widgets.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -41,8 +42,14 @@ class _MenuScreenState extends State<MenuScreen> {
           switch (viewModel.status) {
             case MenuStatus.initial:
             case MenuStatus.loading:
-              return const Center(
-                child: CircularProgressIndicator(color: Colors.yellow),
+              return ListView.separated(
+                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 20),
+                itemCount: 3, // столько дней показать при загрузке
+                separatorBuilder: (_, __) => const Padding(
+                  padding: EdgeInsets.symmetric(vertical: 16, horizontal: 32),
+                  child: Divider(thickness: 1, color: Colors.grey),
+                ),
+                itemBuilder: (_, __) => const DayMenuSkeleton(),
               );
 
             case MenuStatus.error:
