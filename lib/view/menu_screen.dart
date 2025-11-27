@@ -1,4 +1,5 @@
 import 'package:ManasYemek/view/widgets/day_menu_skeleton.dart';
+import 'package:ManasYemek/view/widgets/staggered_day_menu_widget.dart';
 import 'package:ManasYemek/view/widgets/widgets.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -11,8 +12,7 @@ class MenuScreen extends StatefulWidget {
   State<MenuScreen> createState() => _MenuScreenState();
 }
 
-class _MenuScreenState extends State<MenuScreen>
-    with SingleTickerProviderStateMixin {
+class _MenuScreenState extends State<MenuScreen> with TickerProviderStateMixin {
   late AnimationController _fadeController;
   late Animation<double> _fadeAnimation;
 
@@ -22,7 +22,7 @@ class _MenuScreenState extends State<MenuScreen>
 
     _fadeController = AnimationController(
       vsync: this,
-      duration: const Duration(milliseconds: 450),
+      duration: const Duration(milliseconds: 600),
     );
 
     _fadeAnimation = CurvedAnimation(
@@ -43,6 +43,7 @@ class _MenuScreenState extends State<MenuScreen>
     _fadeController.dispose();
     super.dispose();
   }
+
 
   @override
   Widget build(BuildContext context) {
@@ -109,32 +110,29 @@ class _MenuScreenState extends State<MenuScreen>
               );
 
             case MenuStatus.loaded:
-              return FadeTransition(
-                opacity: _fadeAnimation,
-                child: RefreshIndicator(
-                  onRefresh: () async {
-                    _fadeController.reset();
-                    await viewModel.fetchMenu();
-                  },
-                  child: ListView.separated(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 10,
-                      vertical: 20,
-                    ),
-                    itemCount: viewModel.menus.length,
-                    separatorBuilder: (context, index) => const Padding(
-                      padding: EdgeInsets.symmetric(
-                        vertical: 16,
-                        horizontal: 32,
-                      ),
-                      child: Divider(thickness: 1, color: Colors.grey),
-                    ),
-                    itemBuilder: (context, index) {
-                      return DayMenuWidget(dayMenu: viewModel.menus[index]);
-                    },
+              _fadeController.forward(); // запускаем анимацию
+              return RefreshIndicator(
+                onRefresh: () async {
+                  _fadeController.reset();
+                  await viewModel.fetchMenu();
+                },
+                child: ListView.separated(
+                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 20),
+                  itemCount: viewModel.menus.length,
+                  separatorBuilder: (context, index) => const Padding(
+                    padding: EdgeInsets.symmetric(vertical: 16, horizontal: 32),
+                    child: Divider(thickness: 1, color: Colors.grey),
                   ),
+                  itemBuilder: (context, index) {
+                    return StaggeredDayMenuWidget(
+                      dayMenu: viewModel.menus[index],
+                      index: index,
+                      animation: _fadeAnimation,
+                    );
+                  },
                 ),
               );
+
           }
         },
       ),
