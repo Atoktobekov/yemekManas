@@ -1,5 +1,3 @@
-import 'package:ManasYemek/view/widgets/day_menu_skeleton.dart';
-import 'package:ManasYemek/view/widgets/staggered_day_menu_widget.dart';
 import 'package:ManasYemek/view/widgets/widgets.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -43,7 +41,6 @@ class _MenuScreenState extends State<MenuScreen> with TickerProviderStateMixin {
     _fadeController.dispose();
     super.dispose();
   }
-
 
   @override
   Widget build(BuildContext context) {
@@ -110,14 +107,17 @@ class _MenuScreenState extends State<MenuScreen> with TickerProviderStateMixin {
               );
 
             case MenuStatus.loaded:
-              _fadeController.forward(); // запускаем анимацию
+              _fadeController.forward();
               return RefreshIndicator(
                 onRefresh: () async {
                   _fadeController.reset();
                   await viewModel.fetchMenu();
                 },
                 child: ListView.separated(
-                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 20),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 10,
+                    vertical: 20,
+                  ),
                   itemCount: viewModel.menus.length,
                   separatorBuilder: (context, index) => const Padding(
                     padding: EdgeInsets.symmetric(vertical: 16, horizontal: 32),
@@ -132,7 +132,6 @@ class _MenuScreenState extends State<MenuScreen> with TickerProviderStateMixin {
                   },
                 ),
               );
-
           }
         },
       ),

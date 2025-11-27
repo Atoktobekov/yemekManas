@@ -1,6 +1,6 @@
-import 'package:ManasYemek/view/widgets/menu_item_skeleton.dart';
 import 'package:flutter/material.dart';
 import 'package:shimmer/shimmer.dart';
+import 'package:ManasYemek/view/view.dart';
 
 class DayMenuSkeleton extends StatelessWidget {
   const DayMenuSkeleton({super.key});

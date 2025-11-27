@@ -18,24 +18,15 @@ class StaggeredDayMenuWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final slideAnimation = Tween<Offset>(
-      begin: const Offset(0, 0.11),
-      end: Offset.zero,
-    ).animate(
-      CurvedAnimation(
-        parent: animation,
-        curve: Interval(
-          0.15 * index, // задержка для каждой карточки
-          1.0,
-          curve: Curves.easeOut,
-        ),
-      ),
-    );
+    final slideAnimation =
+        Tween<Offset>(begin: const Offset(0, 0.11), end: Offset.zero).animate(
+          CurvedAnimation(
+            parent: animation,
+            curve: Interval(0.15 * index, 1.0, curve: Curves.easeOut),
+          ),
+        );
 
-    final fadeAnimation = Tween<double>(
-      begin: 0,
-      end: 1,
-    ).animate(
+    final fadeAnimation = Tween<double>(begin: 0, end: 1).animate(
       CurvedAnimation(
         parent: animation,
         curve: Interval(0.1 * index, 1.0, curve: Curves.easeIn),
