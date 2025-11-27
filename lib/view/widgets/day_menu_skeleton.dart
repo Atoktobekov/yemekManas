@@ -19,15 +19,16 @@ class DayMenuSkeleton extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // День недели (широкая плашка)
             Container(
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(10),
+                color: Colors.grey.shade300,
+              ),
               height: 32,
               width: 180,
-              color: Colors.grey.shade300,
             ),
             const SizedBox(height: 16),
 
-            // Сетка 2x2 меню
             GridView.builder(
               shrinkWrap: true,
               physics: const NeverScrollableScrollPhysics(),
@@ -43,7 +44,6 @@ class DayMenuSkeleton extends StatelessWidget {
 
             const SizedBox(height: 20),
 
-            // Калории и дата
             Center(
               child: Container(
                 width: 285,
@@ -53,7 +53,7 @@ class DayMenuSkeleton extends StatelessWidget {
                   borderRadius: BorderRadius.circular(10),
                 ),
               ),
-            )
+            ),
           ],
         ),
       ),

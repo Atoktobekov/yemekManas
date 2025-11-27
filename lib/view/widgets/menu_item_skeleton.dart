@@ -12,13 +12,12 @@ class MenuItemSkeleton extends StatelessWidget {
       ),
       child: Column(
         children: [
-          // Картинка
           Container(
             height: 105,
             decoration: BoxDecoration(
               color: Colors.grey.shade300,
               borderRadius: const BorderRadius.vertical(
-                top: Radius.circular(16),
+                top: Radius.circular(10),
               ),
             ),
           ),
@@ -28,19 +27,13 @@ class MenuItemSkeleton extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // Название
                   Container(
                     height: 16,
                     width: double.infinity,
                     color: Colors.grey.shade300,
                   ),
                   const SizedBox(height: 8),
-                  // Калории
-                  Container(
-                    height: 14,
-                    width: 70,
-                    color: Colors.grey.shade300,
-                  ),
+                  Container(height: 14, width: 70, color: Colors.grey.shade300),
                 ],
               ),
             ),
