@@ -11,10 +11,24 @@ class MenuScreen extends StatefulWidget {
   State<MenuScreen> createState() => _MenuScreenState();
 }
 
-class _MenuScreenState extends State<MenuScreen> {
+class _MenuScreenState extends State<MenuScreen>
+    with SingleTickerProviderStateMixin {
+  late AnimationController _fadeController;
+  late Animation<double> _fadeAnimation;
+
   @override
   void initState() {
     super.initState();
+
+    _fadeController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 450),
+    );
+
+    _fadeAnimation = CurvedAnimation(
+      parent: _fadeController,
+      curve: Curves.easeInOut,
+    );
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final viewModel = context.read<MenuViewModel>();
@@ -24,6 +38,11 @@ class _MenuScreenState extends State<MenuScreen> {
     });
   }
 
+  @override
+  void dispose() {
+    _fadeController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -39,12 +58,20 @@ class _MenuScreenState extends State<MenuScreen> {
       ),
       body: Builder(
         builder: (context) {
+          if (viewModel.status == MenuStatus.loaded) {
+            _fadeController.forward();
+          } else {
+            _fadeController.reset();
+          }
           switch (viewModel.status) {
             case MenuStatus.initial:
             case MenuStatus.loading:
               return ListView.separated(
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 20),
-                itemCount: 3, // столько дней показать при загрузке
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 10,
+                  vertical: 20,
+                ),
+                itemCount: 3,
                 separatorBuilder: (_, __) => const Padding(
                   padding: EdgeInsets.symmetric(vertical: 16, horizontal: 32),
                   child: Divider(thickness: 1, color: Colors.grey),
@@ -82,23 +109,30 @@ class _MenuScreenState extends State<MenuScreen> {
               );
 
             case MenuStatus.loaded:
-              return RefreshIndicator(
-                onRefresh: () async {
-                  await viewModel.fetchMenu();
-                },
-                child: ListView.separated(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 10,
-                    vertical: 20,
-                  ),
-                  itemCount: viewModel.menus.length,
-                  separatorBuilder: (context, index) => const Padding(
-                    padding: EdgeInsets.symmetric(vertical: 16, horizontal: 32),
-                    child: Divider(thickness: 1, color: Colors.grey),
-                  ),
-                  itemBuilder: (context, index) {
-                    return DayMenuWidget(dayMenu: viewModel.menus[index]);
+              return FadeTransition(
+                opacity: _fadeAnimation,
+                child: RefreshIndicator(
+                  onRefresh: () async {
+                    _fadeController.reset();
+                    await viewModel.fetchMenu();
                   },
+                  child: ListView.separated(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 10,
+                      vertical: 20,
+                    ),
+                    itemCount: viewModel.menus.length,
+                    separatorBuilder: (context, index) => const Padding(
+                      padding: EdgeInsets.symmetric(
+                        vertical: 16,
+                        horizontal: 32,
+                      ),
+                      child: Divider(thickness: 1, color: Colors.grey),
+                    ),
+                    itemBuilder: (context, index) {
+                      return DayMenuWidget(dayMenu: viewModel.menus[index]);
+                    },
+                  ),
                 ),
               );
           }
