@@ -63,7 +63,8 @@ class _DayKcalAndDate extends StatelessWidget {
     return Center(
       child:
         Container(
-          width: 285,
+          constraints: const BoxConstraints(maxWidth: 285),
+          width: double.infinity,
           padding: const EdgeInsets.symmetric(horizontal: 25, vertical: 10),
           decoration: BoxDecoration(
             color: Colors.white,
