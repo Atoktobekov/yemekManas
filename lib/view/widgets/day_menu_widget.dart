@@ -31,18 +31,25 @@ class DayMenuWidget extends StatelessWidget {
             style: const TextStyle(fontSize: 30, fontWeight: FontWeight.w500),
           ),
           const SizedBox(height: 8),
-          GridView.builder(
-            shrinkWrap: true,
-            physics: const NeverScrollableScrollPhysics(),
-            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: 2,
-              crossAxisSpacing: 16,
-              mainAxisSpacing: 16,
-              childAspectRatio: 0.85,
-            ),
-            itemCount: dayMenu.items.length,
-            itemBuilder: (context, index) {
-              return MenuItemWidget(item: dayMenu.items[index]);
+          LayoutBuilder(
+            builder: (context, constraints) {
+              final itemWidth = (constraints.maxWidth - 16 - 32) / 2;
+              final itemHeight = itemWidth / 0.85;
+              return GridView.builder(
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
+                padding: EdgeInsets.zero, // Добавьте это
+                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: 2,
+                  crossAxisSpacing: 16,
+                  mainAxisSpacing: 16,
+                  childAspectRatio: itemWidth / itemHeight,
+                ),
+                itemCount: dayMenu.items.length,
+                itemBuilder: (context, index) {
+                  return MenuItemWidget(item: dayMenu.items[index]);
+                },
+              );
             },
           ),
           const SizedBox(height: 20),
@@ -61,37 +68,36 @@ class _DayKcalAndDate extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Center(
-      child:
-        Container(
-          constraints: const BoxConstraints(maxWidth: 285),
-          width: double.infinity,
-          padding: const EdgeInsets.symmetric(horizontal: 25, vertical: 10),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(10),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withAlpha(4),
-                offset: const Offset(0, 6),
-                blurRadius: 5,
-                spreadRadius: 0,
-              ),
-            ],
-          ),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                '${dayMenu.totalCalories} kcal',
-                style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-              ),
-              Text(
-                formatDateToMonthDay(dayMenu.date),
-                style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w500),
-              ),
-            ],
-          ),
+      child: Container(
+        constraints: const BoxConstraints(maxWidth: 285),
+        width: double.infinity,
+        padding: const EdgeInsets.symmetric(horizontal: 25, vertical: 10),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(10),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withAlpha(4),
+              offset: const Offset(0, 6),
+              blurRadius: 5,
+              spreadRadius: 0,
+            ),
+          ],
         ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(
+              '${dayMenu.totalCalories} kcal',
+              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            ),
+            Text(
+              formatDateToMonthDay(dayMenu.date),
+              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w500),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }
