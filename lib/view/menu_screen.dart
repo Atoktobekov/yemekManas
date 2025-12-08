@@ -86,12 +86,16 @@ class _MenuScreenState extends State<MenuScreen> with TickerProviderStateMixin {
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      Text(
-                        viewModel.message,
-                        textAlign: TextAlign.center,
-                        style: const TextStyle(
-                          fontSize: 16,
-                          color: Colors.redAccent,
+                      Padding(
+                        padding: EdgeInsets.all(20),
+                        child: Text(
+                          viewModel.message,
+                          textAlign: TextAlign.center,
+                          style: const TextStyle(
+                            fontSize: 22,
+                            color: Colors.redAccent,
+                            fontWeight: FontWeight.w500,
+                          ),
                         ),
                       ),
                       const SizedBox(height: 16),
@@ -101,7 +105,11 @@ class _MenuScreenState extends State<MenuScreen> with TickerProviderStateMixin {
                           foregroundColor: Colors.black,
                         ),
                         onPressed: viewModel.fetchMenu,
-                        child: const Text('Try again'),
+                        child: const Text('Try again', style: TextStyle(
+                          fontSize: 20,
+                          color: Colors.black,
+                          fontWeight: FontWeight.w300,
+                        ),),
                       ),
                     ],
                   ),
@@ -117,7 +125,7 @@ class _MenuScreenState extends State<MenuScreen> with TickerProviderStateMixin {
                 },
                 child: Column(
                   children: [
-                    if (GetIt.instance<MenuRepository>().isDataFromCache())
+                    if (viewModel.message.contains("No internet connection"))
                       Padding(
                         padding: const EdgeInsets.only(
                           top: 8.0,
