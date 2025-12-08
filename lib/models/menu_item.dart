@@ -1,6 +1,16 @@
+import 'package:hive_ce_flutter/hive_flutter.dart';
+
+part 'menu_item.g.dart';
+
+@HiveType(typeId: 1)
 class MenuItem {
+  @HiveField(0)
   final String name;
+
+  @HiveField(1)
   final int caloriesCount;
+
+  @HiveField(2)
   final String photoUrl;
 
   MenuItem({

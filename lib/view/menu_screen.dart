@@ -1,7 +1,11 @@
+import 'package:ManasYemek/repositories/menu_repository.dart';
 import 'package:ManasYemek/view/widgets/widgets.dart';
 import 'package:flutter/material.dart';
+import 'package:get_it/get_it.dart';
 import 'package:provider/provider.dart';
 import 'package:ManasYemek/view_models/menu_view_model.dart';
+
+const message = "No internet connection, showing last data";
 
 class MenuScreen extends StatefulWidget {
   const MenuScreen({super.key});
@@ -113,23 +117,48 @@ class _MenuScreenState extends State<MenuScreen> with TickerProviderStateMixin {
                   _fadeController.reset();
                   await viewModel.fetchMenu();
                 },
-                child: ListView.separated(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 10,
-                    vertical: 20,
-                  ),
-                  itemCount: viewModel.menus.length,
-                  separatorBuilder: (context, index) => const Padding(
-                    padding: EdgeInsets.symmetric(vertical: 16, horizontal: 32),
-                    child: Divider(thickness: 1, color: Colors.grey),
-                  ),
-                  itemBuilder: (context, index) {
-                    return StaggeredDayMenuWidget(
-                      dayMenu: viewModel.menus[index],
-                      index: index,
-                      animation: _fadeAnimation,
-                    );
-                  },
+                child: Column(
+                  children: [
+                    if (GetIt.instance<MenuRepository>().isDataFromCache())
+                      Padding(
+                        padding: const EdgeInsets.only(
+                          top: 8.0,
+                          left: 12.0,
+                          right: 6.0,
+                        ),
+                        child: Text(
+                          message,
+                          style: TextStyle(
+                            color: Colors.grey,
+                            fontWeight: FontWeight.w700,
+                            fontSize: 16,
+                          ),
+                        ),
+                      ),
+                    Expanded(
+                      child: ListView.separated(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 10,
+                          vertical: 20,
+                        ),
+                        itemCount: viewModel.menus.length,
+                        separatorBuilder: (context, index) => const Padding(
+                          padding: EdgeInsets.symmetric(
+                            vertical: 16,
+                            horizontal: 32,
+                          ),
+                          child: Divider(thickness: 1, color: Colors.grey),
+                        ),
+                        itemBuilder: (context, index) {
+                          return StaggeredDayMenuWidget(
+                            dayMenu: viewModel.menus[index],
+                            index: index,
+                            animation: _fadeAnimation,
+                          );
+                        },
+                      ),
+                    ),
+                  ],
                 ),
               );
           }

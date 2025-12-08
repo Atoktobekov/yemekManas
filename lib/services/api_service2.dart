@@ -18,7 +18,7 @@ class ApiService2 {
           .map((e) => DailyMenu.fromJson(e as Map<String, dynamic>?))
           .toList();
     } on DioException catch (e) {
-      GetIt.instance<Talker>().handle('DioException: ${e.response?.data ?? e.message}');
+      GetIt.instance<Talker>().handle('[DioException in ApiService] ${e.response?.data ?? e.message}');
       throw Exception('Data fetching error: ${e.message}');
     } catch (e) {
       GetIt.instance<Talker>().handle(e);

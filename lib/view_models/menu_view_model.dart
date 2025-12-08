@@ -1,4 +1,4 @@
-import 'package:ManasYemek/services/services.dart';
+import 'package:ManasYemek/repositories/menu_repository.dart';
 import 'package:flutter/foundation.dart';
 import 'package:ManasYemek/models/models.dart';
 import 'package:get_it/get_it.dart';
@@ -7,10 +7,6 @@ import 'package:talker_flutter/talker_flutter.dart';
 enum MenuStatus { initial, loading, loaded, error }
 
 class MenuViewModel extends ChangeNotifier {
-  final ApiService2 _apiService;
-
-  MenuViewModel(this._apiService);
-
   MenuStatus _status = MenuStatus.initial;
 
   MenuStatus get status => _status;
@@ -29,8 +25,15 @@ class MenuViewModel extends ChangeNotifier {
     notifyListeners();
 
     try {
-      _menus = await _apiService.fetchMenu();
-      _status = MenuStatus.loaded;
+      _menus = await GetIt.instance<MenuRepository>().getMenuList();
+      if (_menus.isNotEmpty) {
+        _status = MenuStatus.loaded;
+      }
+      else {
+        _errorMessage = 'Failed downloading menu. Please try again later';
+        _menus = [];
+        _status = MenuStatus.error;
+      }
     } catch (e, st) {
       GetIt.instance<Talker>().handle(e, st);
       _errorMessage = 'Failed downloading menu. Please try again later';

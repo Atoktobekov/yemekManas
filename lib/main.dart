@@ -1,13 +1,17 @@
 import 'dart:async';
 
 import 'package:ManasYemek/app.dart';
+import 'package:ManasYemek/models/models.dart';
+import 'package:ManasYemek/repositories/menu_repository.dart';
+import 'package:ManasYemek/services/services.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:talker_dio_logger/talker_dio_logger.dart';
 import 'package:talker_flutter/talker_flutter.dart';
+import 'package:hive_ce_flutter/hive_flutter.dart';
 
-void main() {
+Future<void> main() async {
   final dioOptions = BaseOptions(
     baseUrl: 'https://yemek-api.vercel.app/',
     connectTimeout: const Duration(seconds: 15),
@@ -28,6 +32,16 @@ void main() {
 
   FlutterError.onError = (details) =>
       GetIt.instance<Talker>().handle(details.exception, details.stack);
+
+  const yemekBoxKey = "yemek_list_box";
+  await Hive.initFlutter();
+  Hive.registerAdapter(DailyMenuAdapter());
+  Hive.registerAdapter(MenuItemAdapter());
+  final yemekListBox = await Hive.openBox<DailyMenu>(yemekBoxKey);
+
+  GetIt.instance.registerLazySingleton<MenuRepository>(
+      () =>MenuRepository(yemekListBox: yemekListBox, apiService: ApiService2())
+  );
 
   runZonedGuarded(
     () => runApp(const YemekApp()),
