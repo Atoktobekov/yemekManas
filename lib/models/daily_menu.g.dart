@@ -19,17 +19,20 @@ class DailyMenuAdapter extends TypeAdapter<DailyMenu> {
     return DailyMenu(
       date: fields[0] as String,
       items: (fields[1] as List).cast<MenuItem>(),
+      lastUpdate: fields[2] as DateTime,
     );
   }
 
   @override
   void write(BinaryWriter writer, DailyMenu obj) {
     writer
-      ..writeByte(2)
+      ..writeByte(3)
       ..writeByte(0)
       ..write(obj.date)
       ..writeByte(1)
-      ..write(obj.items);
+      ..write(obj.items)
+      ..writeByte(2)
+      ..write(obj.lastUpdate);
   }
 
   @override

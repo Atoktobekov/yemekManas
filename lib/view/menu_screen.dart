@@ -5,8 +5,6 @@ import 'package:get_it/get_it.dart';
 import 'package:provider/provider.dart';
 import 'package:ManasYemek/view_models/menu_view_model.dart';
 
-const message = "No internet connection, showing last data";
-
 class MenuScreen extends StatefulWidget {
   const MenuScreen({super.key});
 
@@ -89,7 +87,7 @@ class _MenuScreenState extends State<MenuScreen> with TickerProviderStateMixin {
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       Text(
-                        viewModel.errorMessage,
+                        viewModel.message,
                         textAlign: TextAlign.center,
                         style: const TextStyle(
                           fontSize: 16,
@@ -127,7 +125,7 @@ class _MenuScreenState extends State<MenuScreen> with TickerProviderStateMixin {
                           right: 6.0,
                         ),
                         child: Text(
-                          message,
+                          viewModel.message,
                           style: TextStyle(
                             color: Colors.grey,
                             fontWeight: FontWeight.w700,

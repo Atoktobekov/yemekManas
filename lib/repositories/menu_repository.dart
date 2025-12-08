@@ -17,23 +17,32 @@ class MenuRepository {
 
     try {
       menuList = await apiService.fetchMenu();
+
+      //saving data in HiveBox
       final menuListMap = {for (var e in menuList) e.date: e};
       yemekListBox.putAll(menuListMap);
 
       _isDataFromCacheFlag = false;
       return menuList;
     } catch (e, st) {
-      GetIt.instance<Talker>().handle(e, st, "[getMenuListError from MenuRepository]");
-      _isDataFromCacheFlag = true;
-      return getCachedMenu();
+      GetIt.instance<Talker>().handle(
+        e,
+        st,
+        "[getMenuListError from MenuRepository]",
+      );
+      if (e.toString().contains("Data fetching error")) {
+        _isDataFromCacheFlag = true;
+        return getCachedMenu();
+      }
+      rethrow;
     }
   }
 
-  List<DailyMenu> getCachedMenu(){
+  List<DailyMenu> getCachedMenu() {
     return yemekListBox.values.toList();
   }
 
-  bool isDataFromCache(){
+  bool isDataFromCache() {
     return _isDataFromCacheFlag;
   }
 }

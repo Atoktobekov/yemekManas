@@ -15,28 +15,34 @@ class MenuViewModel extends ChangeNotifier {
 
   List<DailyMenu> get menus => _menus;
 
-  String _errorMessage = '';
+  String _message = '';
 
-  String get errorMessage => _errorMessage;
+  String get message => _message;
 
   Future<void> fetchMenu() async {
     _status = MenuStatus.loading;
-    _errorMessage = '';
+    _message = '';
     notifyListeners();
 
     try {
-      _menus = await GetIt.instance<MenuRepository>().getMenuList();
+      final data = await GetIt.instance<MenuRepository>().getMenuList();
+
+      _menus = data.where((element) {
+        final age = DateTime.now().difference(element.lastUpdate);
+        return age.inMinutes <= 60;
+      }).toList();
+
       if (_menus.isNotEmpty) {
         _status = MenuStatus.loaded;
-      }
-      else {
-        _errorMessage = 'Failed downloading menu. Please try again later';
+        _message = "No internet connection. Showing saved data.";
+      } else {
+        _message = 'No internet connection and saved data is too old.';
         _menus = [];
         _status = MenuStatus.error;
       }
     } catch (e, st) {
       GetIt.instance<Talker>().handle(e, st);
-      _errorMessage = 'Failed downloading menu. Please try again later';
+      _message = 'Failed downloading menu. Please try again later';
       _menus = [];
       _status = MenuStatus.error;
     } finally {
