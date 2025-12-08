@@ -1,6 +1,8 @@
 import 'package:ManasYemek/models/models.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:get_it/get_it.dart';
+import 'package:talker_flutter/talker_flutter.dart';
 
 class MenuItemWidget extends StatefulWidget {
   final MenuItem item;
@@ -58,6 +60,7 @@ class _MenuItemWidgetState extends State<MenuItemWidget> {
                   },
 
                   errorWidget: (context, url, error) {
+                    GetIt.instance<Talker>().handle(error, null, "[Error From MenuItemWidget]");
                     return _RetryImagePlaceholder(
                       onRetry: () => setState(() => _imageKey = UniqueKey()),
                     );
