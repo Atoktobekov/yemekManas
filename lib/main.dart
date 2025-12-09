@@ -1,50 +1,58 @@
 import 'dart:async';
 
 import 'package:ManasYemek/app.dart';
-import 'package:ManasYemek/models/models.dart';
+import 'package:ManasYemek/models/daily_menu.dart';
+import 'package:ManasYemek/models/menu_item.dart';
 import 'package:ManasYemek/repositories/menu_repository.dart';
-import 'package:ManasYemek/services/services.dart';
+import 'package:ManasYemek/services/api_service2.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
+import 'package:hive_ce_flutter/hive_flutter.dart';
 import 'package:talker_dio_logger/talker_dio_logger.dart';
 import 'package:talker_flutter/talker_flutter.dart';
-import 'package:hive_ce_flutter/hive_flutter.dart';
 
 Future<void> main() async {
-  final dioOptions = BaseOptions(
-    baseUrl: 'https://yemek-api.vercel.app/',
-    connectTimeout: const Duration(seconds: 15),
-    receiveTimeout: const Duration(seconds: 15),
-  );
-  final talker = TalkerFlutter.init();
-  final dio = Dio(dioOptions);
+  runZonedGuarded(() async {
+    WidgetsFlutterBinding.ensureInitialized();
 
-  dio.interceptors.add(
-    TalkerDioLogger(
-      settings: const TalkerDioLoggerSettings(printResponseData: false),
-      talker: talker,
-    ),
-  );
+    final dioOptions = BaseOptions(
+      baseUrl: 'https://yemek-api.vercel.app/',
+      connectTimeout: const Duration(seconds: 15),
+      receiveTimeout: const Duration(seconds: 15),
+    );
 
-  GetIt.instance.registerSingleton(talker);
-  GetIt.instance.registerSingleton(dio);
+    final talker = TalkerFlutter.init();
+    final dio = Dio(dioOptions);
 
-  FlutterError.onError = (details) =>
-      GetIt.instance<Talker>().handle(details.exception, details.stack);
+    dio.interceptors.add(
+      TalkerDioLogger(
+        settings: const TalkerDioLoggerSettings(printResponseData: false),
+        talker: talker,
+      ),
+    );
 
-  const yemekBoxKey = "yemek_list_box";
-  await Hive.initFlutter();
-  Hive.registerAdapter(DailyMenuAdapter());
-  Hive.registerAdapter(MenuItemAdapter());
-  final yemekListBox = await Hive.openBox<DailyMenu>(yemekBoxKey);
+    GetIt.instance.registerSingleton(talker);
+    GetIt.instance.registerSingleton(dio);
 
-  GetIt.instance.registerLazySingleton<MenuRepository>(
-      () =>MenuRepository(yemekListBox: yemekListBox, apiService: ApiService2())
-  );
+    FlutterError.onError = (details) =>
+        GetIt.instance<Talker>().handle(details.exception, details.stack);
 
-  runZonedGuarded(
-    () => runApp(const YemekApp()),
-    (error, stacktrace) => GetIt.instance<Talker>().handle(error, stacktrace),
-  );
+    const yemekBoxKey = "yemek_list_box";
+    await Hive.initFlutter();
+    Hive.registerAdapter(DailyMenuAdapter());
+    Hive.registerAdapter(MenuItemAdapter());
+    final yemekListBox = await Hive.openBox<DailyMenu>(yemekBoxKey);
+
+    GetIt.instance.registerLazySingleton<MenuRepository>(
+          () => MenuRepository(
+        yemekListBox: yemekListBox,
+        apiService: ApiService2(),
+      ),
+    );
+
+    runApp(const YemekApp());
+  }, (error, stacktrace) {
+    GetIt.instance<Talker>().handle(error, stacktrace);
+  });
 }
