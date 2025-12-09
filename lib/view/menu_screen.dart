@@ -1,7 +1,5 @@
-import 'package:ManasYemek/repositories/menu_repository.dart';
 import 'package:ManasYemek/view/widgets/widgets.dart';
 import 'package:flutter/material.dart';
-import 'package:get_it/get_it.dart';
 import 'package:provider/provider.dart';
 import 'package:ManasYemek/view_models/menu_view_model.dart';
 
@@ -59,10 +57,11 @@ class _MenuScreenState extends State<MenuScreen> with TickerProviderStateMixin {
       body: Builder(
         builder: (context) {
           if (viewModel.status == MenuStatus.loaded) {
-            _fadeController.forward();
+            if (!_fadeController.isCompleted) _fadeController.forward();
           } else {
             _fadeController.reset();
           }
+
           switch (viewModel.status) {
             case MenuStatus.initial:
             case MenuStatus.loading:
@@ -117,7 +116,7 @@ class _MenuScreenState extends State<MenuScreen> with TickerProviderStateMixin {
               );
 
             case MenuStatus.loaded:
-              _fadeController.forward();
+              //_fadeController.forward();
               return RefreshIndicator(
                 onRefresh: () async {
                   _fadeController.reset();
@@ -125,7 +124,7 @@ class _MenuScreenState extends State<MenuScreen> with TickerProviderStateMixin {
                 },
                 child: Column(
                   children: [
-                    if (viewModel.message.contains("No internet connection"))
+                    if (viewModel.isCached)
                       Padding(
                         padding: const EdgeInsets.only(
                           top: 8.0,

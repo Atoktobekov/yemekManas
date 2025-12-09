@@ -1,10 +1,10 @@
+import 'package:ManasYemek/exceptions/network_exception.dart';
 import 'package:dio/dio.dart';
 import 'package:ManasYemek/models/daily_menu.dart';
 import 'package:get_it/get_it.dart';
 import 'package:talker_flutter/talker_flutter.dart';
 
 class ApiService2 {
-
   Future<List<DailyMenu>> fetchMenu() async {
     try {
       final response = await GetIt.instance<Dio>().get('/');
@@ -19,7 +19,7 @@ class ApiService2 {
           .toList();
     } on DioException catch (e) {
       GetIt.instance<Talker>().handle('[DioException in ApiService] ${e.response?.data ?? e.message}');
-      throw Exception('Data fetching error: ${e.message}');
+      throw NetworkException(message: "Data fetching error");
     } catch (e) {
       GetIt.instance<Talker>().handle(e);
       rethrow;
