@@ -2,12 +2,14 @@ name: ManasYemek
 description: "App for yemekhane of Manas University"
 publish_to: 'none'
 
-version: 0.0.4+1
+version: 1.0.0+1
 
 environment:
   sdk: ^3.8.1
 
 dependencies:
+  firebase_remote_config: ^6.1.2
+  firebase_core: ^4.2.1
   permission_handler: ^11.3.1
   flutter_archive: ^6.0.4
   open_filex: ^4.7.0

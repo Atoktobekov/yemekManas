@@ -11,13 +11,24 @@ import 'package:get_it/get_it.dart';
 import 'package:hive_ce_flutter/hive_flutter.dart';
 import 'package:talker_dio_logger/talker_dio_logger.dart';
 import 'package:talker_flutter/talker_flutter.dart';
+import 'firebase_options.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_remote_config/firebase_remote_config.dart';
 
 Future<void> main() async {
-
   final getIt = GetIt.instance;
+
+  // Создаем Talker до runZonedGuarded, чтобы он был доступен всегда
+  final talker = TalkerFlutter.init();
 
   runZonedGuarded(() async {
     WidgetsFlutterBinding.ensureInitialized();
+
+    // --- ИСПРАВЛЕНИЕ: РЕГИСТРИРУЕМ TALKER СРАЗУ ---
+    getIt.registerSingleton(talker);
+
+    FlutterError.onError =
+        (details) => talker.handle(details.exception, details.stack);
 
     final dioOptions = BaseOptions(
       baseUrl: 'https://yemek-api.vercel.app/',
@@ -25,9 +36,7 @@ Future<void> main() async {
       receiveTimeout: const Duration(seconds: 15),
     );
 
-    final talker = TalkerFlutter.init();
     final dio = Dio(dioOptions);
-
     dio.interceptors.add(
       TalkerDioLogger(
         settings: const TalkerDioLoggerSettings(printResponseData: false),
@@ -35,11 +44,24 @@ Future<void> main() async {
       ),
     );
 
-    GetIt.instance.registerSingleton(talker);
-    GetIt.instance.registerSingleton(dio);
+    await Firebase.initializeApp(
+      options: DefaultFirebaseOptions.currentPlatform,
+    );
+    final remoteConfig = FirebaseRemoteConfig.instance;
+    await remoteConfig.setConfigSettings(RemoteConfigSettings(
+      fetchTimeout: const Duration(minutes: 1),
+      minimumFetchInterval: const Duration(hours: 1),
+    ));
+    await remoteConfig.setDefaults(const {
+      "latest_version": "1.0.0",
+      "update_required": false,
+      "update_url": "",
+      "update_changelog": "Initial release.",
+    });
 
-    FlutterError.onError = (details) =>
-        GetIt.instance<Talker>().handle(details.exception, details.stack);
+    // Регистрируем остальные синглтоны
+    getIt.registerSingleton(dio);
+    getIt.registerSingleton(remoteConfig);
 
     const yemekBoxKey = "yemek_list_box";
     await Hive.initFlutter();
@@ -47,29 +69,30 @@ Future<void> main() async {
     Hive.registerAdapter(MenuItemAdapter());
     final yemekListBox = await Hive.openBox<DailyMenu>(yemekBoxKey);
 
-    GetIt.instance.registerLazySingleton<MenuRepository>(
+    getIt.registerLazySingleton<MenuRepository>(
           () => MenuRepository(
         yemekListBox: yemekListBox,
         apiService: ApiService2(),
       ),
     );
 
-    GetIt.instance.registerSingleton<ValueNotifier<double>>
-      (ValueNotifier<double>(0.0), instanceName: "DownloadProgress");
+    getIt.registerSingleton<ValueNotifier<double>>(
+        ValueNotifier<double>(0.0),
+        instanceName: "DownloadProgress");
 
-    GetIt.instance.registerLazySingleton<DownloadAndUpdateApkService>(() => DownloadAndUpdateApkService(
-      dio: getIt<Dio>(),
-      talker: getIt<Talker>(),
-    ));
+    getIt.registerLazySingleton<DownloadAndUpdateApkService>(
+            () => DownloadAndUpdateApkService(
+          dio: getIt<Dio>(),
+          talker: getIt<Talker>(),
+        ));
 
-    GetIt.instance.registerLazySingleton<CheckForUpdateService>(() => CheckForUpdateService(
-      dio: getIt<Dio>(),
-      talker: getIt<Talker>(),
-      progressNotifier: getIt<ValueNotifier<double>>(instanceName: "DownloadProgress"),
-    ));
+    // --- ИСПРАВЛЕНИЕ: Передаем зависимости в CheckForUpdateService ---
+    getIt.registerLazySingleton<CheckForUpdateService>(
+            () => CheckForUpdateService());
 
     runApp(const YemekApp());
   }, (error, stacktrace) {
-    GetIt.instance<Talker>().handle(error, stacktrace);
+    // Теперь это будет работать, так как talker уже создан
+    talker.handle(error, stacktrace);
   });
 }
