@@ -1,4 +1,4 @@
-import 'package:ManasYemek/exceptions/network_exception.dart';
+import 'package:ManasYemek/exceptions/exceptions.dart';
 import 'package:dio/dio.dart';
 import 'package:ManasYemek/models/daily_menu.dart';
 import 'package:get_it/get_it.dart';
@@ -18,7 +18,7 @@ class ApiService2 {
           .map((e) => DailyMenu.fromJson(e as Map<String, dynamic>?))
           .toList();
     } on DioException catch (e) {
-      GetIt.instance<Talker>().handle('[DioException in ApiService] ${e.response?.data ?? e.message}');
+      GetIt.instance<Talker>().handle(e, null, '[DioException in ApiService]');
       throw NetworkException(message: "Data fetching error");
     } catch (e) {
       GetIt.instance<Talker>().handle(e);

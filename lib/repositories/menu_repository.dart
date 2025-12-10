@@ -1,5 +1,4 @@
-import 'package:ManasYemek/exceptions/data_expired_exception.dart';
-import 'package:ManasYemek/exceptions/network_exception.dart';
+import 'package:ManasYemek/exceptions/exceptions.dart';
 import 'package:get_it/get_it.dart';
 import 'package:ManasYemek/models/models.dart';
 import 'package:hive_ce_flutter/hive_flutter.dart';
@@ -26,7 +25,7 @@ class MenuRepository {
       _isDataFromCacheFlag = false;
       return menuList;
     } on NetworkException catch (e) {
-      GetIt.instance<Talker>().handle(e);
+      GetIt.instance<Talker>().handle(e, null, "[NetworkException in MenuRepository]");
       _isDataFromCacheFlag = true;
 
       final cachedData = getCachedMenu();
