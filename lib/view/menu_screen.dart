@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 
 import 'package:ManasYemek/view/widgets/widgets.dart';
@@ -20,6 +21,10 @@ class MenuScreen extends StatefulWidget {
 class _MenuScreenState extends State<MenuScreen> with TickerProviderStateMixin {
   late AnimationController _fadeController;
   late Animation<double> _fadeAnimation;
+
+  int _logButtonTapCount = 0;
+  Timer? _logButtonTimer;
+
 
   @override
   void initState() {
@@ -50,6 +55,8 @@ class _MenuScreenState extends State<MenuScreen> with TickerProviderStateMixin {
 
   @override
   void dispose() {
+    _logButtonTimer?.cancel();
+
     context.read<MenuViewModel>().uiEvent.removeListener(_handleUiEvents);
     _fadeController.dispose();
     super.dispose();
@@ -78,8 +85,26 @@ class _MenuScreenState extends State<MenuScreen> with TickerProviderStateMixin {
         context,
       ).showSnackBar(SnackBar(content: Text(event.message)));
     }
-    // Сбрасываем событие, чтобы оно не вызывалось повторно при перерисовке
     viewModel.uiEvent.value = null;
+  }
+
+  void _handleLogButtonTap() {
+    _logButtonTapCount++;
+
+    _logButtonTimer?.cancel();
+    _logButtonTimer = Timer(const Duration(seconds: 1), () {
+      _logButtonTapCount = 0;
+    });
+
+    if (_logButtonTapCount == 3) {
+      _logButtonTapCount = 0;
+      _logButtonTimer?.cancel();
+      Navigator.of(context).push(
+        MaterialPageRoute(
+          builder: (context) => TalkerScreen(talker: GetIt.instance<Talker>()),
+        ),
+      );
+    }
   }
 
   @override
@@ -88,26 +113,25 @@ class _MenuScreenState extends State<MenuScreen> with TickerProviderStateMixin {
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
-        title: Text(
-          'Yemekhane Menu',
-          style: TextStyle(fontSize: 25, fontWeight: FontWeight.bold),
-        ),
-        actions: [
-          IconButton(
-            onPressed: () {
-              Navigator.of(context).push(
-                MaterialPageRoute(
-                  builder: (context) =>
-                      TalkerScreen(talker: GetIt.instance<Talker>()),
-                ),
-              );
-            },
-            icon: const Icon(
-              Icons.document_scanner_outlined,
-              color: Colors.black,
+        title:Stack(
+          alignment: Alignment.centerRight,
+          children: [
+            const Center(
+              child: Text(
+                'Yemekhane Menu',
+                style: TextStyle(fontSize: 25, fontWeight: FontWeight.bold),
+              ),
             ),
-          ),
-        ],
+            GestureDetector(
+              onTap: _handleLogButtonTap,
+              child: Container(
+                width: 50,
+                height: 50,
+                color: Colors.transparent,
+              ),
+            ),
+          ],
+        ),
       ),
       body: Builder(
         builder: (context) {
@@ -220,13 +244,12 @@ class _MenuScreenState extends State<MenuScreen> with TickerProviderStateMixin {
                         },
                       ),
                     ),
-                    // Заменяем ValueListenableBuilder
                     ValueListenableBuilder<double>(
                       valueListenable: viewModel.downloadProgress,
-                      // СЛУШАЕМ ИЗ VIEWMODEL
                       builder: (context, value, _) {
-                        if (value == 0 || value == 1)
+                        if (value == 0 || value == 1) {
                           return const SizedBox.shrink();
+                        }
 
                         return Column(
                           children: [

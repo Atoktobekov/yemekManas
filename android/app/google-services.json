@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "661450530152",
+    "project_id": "yemekhane-app-adi",
+    "storage_bucket": "yemekhane-app-adi.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:661450530152:android:ec6e4056af47686dd74add",
+        "android_client_info": {
+          "package_name": "com.karfagen.manas_yemek"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyATa-ONgtdyg-unRYDL8igso8b6ZU1M_9g"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
