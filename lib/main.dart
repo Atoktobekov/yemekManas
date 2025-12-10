@@ -18,13 +18,11 @@ import 'package:firebase_remote_config/firebase_remote_config.dart';
 Future<void> main() async {
   final getIt = GetIt.instance;
 
-  // Создаем Talker до runZonedGuarded, чтобы он был доступен всегда
   final talker = TalkerFlutter.init();
 
   runZonedGuarded(() async {
     WidgetsFlutterBinding.ensureInitialized();
 
-    // --- ИСПРАВЛЕНИЕ: РЕГИСТРИРУЕМ TALKER СРАЗУ ---
     getIt.registerSingleton(talker);
 
     FlutterError.onError =
@@ -59,7 +57,6 @@ Future<void> main() async {
       "update_changelog": "Initial release.",
     });
 
-    // Регистрируем остальные синглтоны
     getIt.registerSingleton(dio);
     getIt.registerSingleton(remoteConfig);
 
@@ -86,13 +83,11 @@ Future<void> main() async {
           talker: getIt<Talker>(),
         ));
 
-    // --- ИСПРАВЛЕНИЕ: Передаем зависимости в CheckForUpdateService ---
     getIt.registerLazySingleton<CheckForUpdateService>(
             () => CheckForUpdateService());
 
     runApp(const YemekApp());
   }, (error, stacktrace) {
-    // Теперь это будет работать, так как talker уже создан
     talker.handle(error, stacktrace);
   });
 }
