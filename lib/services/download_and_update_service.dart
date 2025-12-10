@@ -4,36 +4,25 @@ import 'package:dio/dio.dart';
 import 'package:flutter_archive/flutter_archive.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:open_filex/open_filex.dart';
-import 'package:get_it/get_it.dart';
 import 'package:talker_flutter/talker_flutter.dart';
-import 'package:permission_handler/permission_handler.dart';
+import 'package:ManasYemek/exceptions/exceptions.dart';
 
 class DownloadAndUpdateApkService {
-  final Dio _dio = GetIt.instance<Dio>();
-  final talker = GetIt.instance<Talker>();
+  final Dio _dio;
+  final Talker talker;
 
-  Future<void> downloadAndPrepareUpdate(
-    BuildContext context,
+  DownloadAndUpdateApkService({required Dio dio, required this.talker})
+    : _dio = dio;
+
+  Future<File?> downloadAndPrepareUpdate(
     String zipUrl, {
     required ValueNotifier<double> progressNotifier,
   }) async {
+    final tempDir = await getTemporaryDirectory();
+    final zipPath = "${tempDir.path}/update.zip";
+    final extractDir = Directory("${tempDir.path}/update");
+
     try {
-      // permission check
-      final hasPermission = await _checkInstallPermission(context);
-      if (!hasPermission) {
-        talker.error("Install permission denied");
-        if (context.mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text("Need permission for installing")),
-          );
-        }
-        return;
-      }
-
-      final tempDir = await getTemporaryDirectory();
-      final zipPath = "${tempDir.path}/update.zip";
-      final extractDir = Directory("${tempDir.path}/update");
-
       if (extractDir.existsSync()) {
         extractDir.deleteSync(recursive: true);
       }
@@ -41,20 +30,11 @@ class DownloadAndUpdateApkService {
 
       talker.info("Downloading ZIP: $zipUrl");
 
-      // download zip archive
-      await _dio.download(
-        zipUrl,
-        zipPath,
-        onReceiveProgress: (received, total) {
-          if (total > 0) {
-            progressNotifier.value = received / total;
-          }
-        },
-      );
+      await _downloadWithRetry(zipUrl, zipPath, progressNotifier);
+      progressNotifier.value = 1.0;
 
       talker.info("ZIP downloaded: $zipPath");
 
-      // unpack
       await ZipFile.extractToDirectory(
         zipFile: File(zipPath),
         destinationDir: extractDir,
@@ -62,120 +42,26 @@ class DownloadAndUpdateApkService {
 
       talker.info("ZIP extracted: ${extractDir.path}");
 
-      // recursively searching APK
-      final apkFile = _findApkRecursive(extractDir);
+      final apkFile = await _findApkRecursive(extractDir);
       if (apkFile == null) {
-        throw Exception("APK not found in archive!");
+        throw ApkNotFoundException();
       }
 
       talker.info("APK found: ${apkFile.path}");
-      progressNotifier.value = 0;
-      // show install dialog
-      if (context.mounted) {
-        _showInstallDialog(context, apkFile);
-      }
+      return apkFile;
     } catch (e, st) {
       talker.handle(e, st, "[DownloadAndUpdateApkService Error]");
-
-      if (context.mounted) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text("Updating Error: $e")));
+      rethrow;
+    } finally {
+      progressNotifier.value = 0.0;
+      if (File(zipPath).existsSync()) {
+        File(zipPath).deleteSync();
       }
     }
   }
 
-  // check and request install permission
-  Future<bool> _checkInstallPermission(BuildContext context) async {
-    if (!Platform.isAndroid) return true;
-
-    try {
-      var status = await Permission.requestInstallPackages.status;
-      talker.info("Install permission status: $status");
-
-      if (!status.isGranted) {
-        // show explanation dialog
-        if (context.mounted) {
-          final shouldRequest = await _showPermissionDialog(context);
-          if (!shouldRequest) return false;
-        }
-
-        // request permission
-        status = await Permission.requestInstallPackages.request();
-        talker.info("Permission request result: $status");
-
-        if (status.isPermanentlyDenied && context.mounted) {
-          // if user denied forever, show settings dialog
-          await _showOpenSettingsDialog(context);
-          return false;
-        }
-
-        return status.isGranted;
-      }
-
-      return true;
-    } catch (e, st) {
-      talker.handle(e, st, "[Permission Check Error]");
-      // trying to install even if theres error
-      return true;
-    }
-  }
-
-  /// explanation dialogue
-  Future<bool> _showPermissionDialog(BuildContext context) async {
-    return await showDialog<bool>(
-          context: context,
-          builder: (context) => AlertDialog(
-            title: const Text("Installing permission"),
-            content: const Text(
-              "Need installing permission for "
-              "installing new version of the app.",
-            ),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.of(context).pop(false),
-                child: const Text("Cancel"),
-              ),
-              TextButton(
-                onPressed: () => Navigator.of(context).pop(true),
-                child: const Text("Access"),
-              ),
-            ],
-          ),
-        ) ??
-        false;
-  }
-
-  /// settings opening dialogue
-  Future<void> _showOpenSettingsDialog(BuildContext context) async {
-    await showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text("Open settings"),
-        content: const Text(
-          "Access denied. Please, enable app installing "
-          "in system settings.",
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(),
-            child: const Text("Cancel"),
-          ),
-          TextButton(
-            onPressed: () {
-              openAppSettings();
-              Navigator.of(context).pop();
-            },
-            child: const Text("Settings"),
-          ),
-        ],
-      ),
-    );
-  }
-
-  /// searching APK
-  File? _findApkRecursive(Directory dir) {
-    for (final entity in dir.listSync(recursive: true)) {
+  Future<File?> _findApkRecursive(Directory dir) async {
+    await for (final entity in dir.list(recursive: true)) {
       if (entity is File && entity.path.endsWith(".apk")) {
         return entity;
       }
@@ -183,61 +69,62 @@ class DownloadAndUpdateApkService {
     return null;
   }
 
-  void _showInstallDialog(BuildContext context, File apkFile) {
-    talker.info("Showing install dialog");
-
-    showDialog(
-      barrierDismissible: false,
-      context: context,
-      builder: (dialogContext) {
-        return AlertDialog(
-          title: const Text("Update is ready"),
-          content: const Text(
-            "New version downloaded. Click «Install», for update.",
-          ),
-          actions: [
-            TextButton(
-              onPressed: () {
-                talker.info("User cancelled update installing.");
-                Navigator.of(dialogContext).pop();
-              },
-              child: const Text("Cancel"),
-            ),
-            TextButton(
-              onPressed: () async {
-                Navigator.of(dialogContext).pop();
-                await _installApk(apkFile);
-              },
-              child: const Text("Install"),
-            ),
-          ],
-        );
-      },
-    );
-  }
-
-  /// install APK
-  Future<void> _installApk(File apkFile) async {
+  Future<void> installApk(File apkFile) async {
     try {
       talker.info("Opening APK: ${apkFile.path}");
-      talker.info("APK exists: ${apkFile.existsSync()}");
-      talker.info("APK size: ${apkFile.lengthSync()} bytes");
+      if (!await apkFile.exists()) {
+        talker.error(
+          "Install failed: APK file does not exist at ${apkFile.path}",
+        );
+        throw Exception("APK file not found.");
+      }
 
       final result = await OpenFilex.open(
         apkFile.path,
         type: "application/vnd.android.package-archive",
-        uti: "application/vnd.android.package-archive",
       );
-
       talker.info("OpenFilex result: ${result.type} | ${result.message}");
 
-      // if failed, trying alternative method
       if (result.type != ResultType.done) {
-        talker.warning("OpenFilex failed!");
-        // Можно добавить альтернативный метод через intent
+        talker.warning("OpenFilex failed: ${result.message}");
+        throw Exception("Failed to open installer: ${result.message}");
       }
     } catch (e, st) {
       talker.handle(e, st, "[Install APK Error]");
+      rethrow;
+    }
+  }
+
+  Future<void> _downloadWithRetry(
+    String url,
+    String savePath,
+    ValueNotifier<double> progressNotifier, {
+    int maxRetries = 3,
+    Duration retryDelay = const Duration(seconds: 2),
+  }) async {
+    int attempt = 0;
+    while (attempt < maxRetries) {
+      try {
+        attempt++;
+        talker.info("Downloading ZIP (attempt $attempt): $url");
+        await _dio.download(
+          url,
+          savePath,
+          onReceiveProgress: (received, total) {
+            if (total > 0) {
+              progressNotifier.value = received / total;
+            }
+          },
+        );
+        talker.info("ZIP downloaded successfully: $savePath");
+        return;
+      } catch (e) {
+        talker.warning("Download attempt $attempt failed: $e");
+        if (attempt >= maxRetries) rethrow;
+        await Future.delayed(retryDelay);
+      }
     }
   }
 }
+
+

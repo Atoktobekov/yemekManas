@@ -13,6 +13,9 @@ import 'package:talker_dio_logger/talker_dio_logger.dart';
 import 'package:talker_flutter/talker_flutter.dart';
 
 Future<void> main() async {
+
+  final getIt = GetIt.instance;
+
   runZonedGuarded(() async {
     WidgetsFlutterBinding.ensureInitialized();
 
@@ -51,7 +54,19 @@ Future<void> main() async {
       ),
     );
 
-   // GetIt.instance.registerLazySingleton(() => CheckForUpdateService());
+    GetIt.instance.registerSingleton<ValueNotifier<double>>
+      (ValueNotifier<double>(0.0), instanceName: "DownloadProgress");
+
+    GetIt.instance.registerLazySingleton<DownloadAndUpdateApkService>(() => DownloadAndUpdateApkService(
+      dio: getIt<Dio>(),
+      talker: getIt<Talker>(),
+    ));
+
+    GetIt.instance.registerLazySingleton<CheckForUpdateService>(() => CheckForUpdateService(
+      dio: getIt<Dio>(),
+      talker: getIt<Talker>(),
+      progressNotifier: getIt<ValueNotifier<double>>(instanceName: "DownloadProgress"),
+    ));
 
     runApp(const YemekApp());
   }, (error, stacktrace) {

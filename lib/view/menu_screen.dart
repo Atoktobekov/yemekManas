@@ -1,10 +1,14 @@
+import 'dart:io';
+
 import 'package:ManasYemek/view/widgets/widgets.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:provider/provider.dart';
 import 'package:ManasYemek/view_models/menu_view_model.dart';
-import 'package:ManasYemek/services/services.dart';
 import 'package:talker_flutter/talker_flutter.dart';
+import 'package:ManasYemek/models/models.dart';
+import 'package:ManasYemek/view_models/helpers/helpers.dart';
 
 class MenuScreen extends StatefulWidget {
   const MenuScreen({super.key});
@@ -16,7 +20,6 @@ class MenuScreen extends StatefulWidget {
 class _MenuScreenState extends State<MenuScreen> with TickerProviderStateMixin {
   late AnimationController _fadeController;
   late Animation<double> _fadeAnimation;
-  final progressNotifier = ValueNotifier<double>(0);
 
   @override
   void initState() {
@@ -32,22 +35,51 @@ class _MenuScreenState extends State<MenuScreen> with TickerProviderStateMixin {
       curve: Curves.easeInOut,
     );
 
-    WidgetsBinding.instance.addPostFrameCallback((_) {
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
       final viewModel = context.read<MenuViewModel>();
+
+      viewModel.uiEvent.addListener(_handleUiEvents);
+
       if (viewModel.status == MenuStatus.initial) {
         viewModel.fetchMenu();
       }
-      final checkForUpdateService = CheckForUpdateService(progressNotifier: progressNotifier);
-      if (!mounted) return;
-      checkForUpdateService.checkForUpdate(context);
-      //GetIt.instance<CheckForUpdateService>().checkForUpdate(context);
+
+      viewModel.checkForUpdate();
     });
   }
 
   @override
   void dispose() {
+    context.read<MenuViewModel>().uiEvent.removeListener(_handleUiEvents);
     _fadeController.dispose();
     super.dispose();
+  }
+
+  // UI events handler
+  void _handleUiEvents() {
+    final viewModel = context.read<MenuViewModel>();
+    final event = viewModel.uiEvent.value;
+    if (event == null || !mounted) return;
+
+    if (event is ShowUpdateDialog) {
+      _showUpdateDialog(context, event.updateInfo);
+    } else if (event is ShowPermissionExplanation) {
+      _showPermissionExplanationDialog(context).then((userAgreed) {
+        if (userAgreed) {
+          viewModel.proceedWithPermissionRequest(event.url);
+        }
+      });
+    } else if (event is ShowInstallDialog) {
+      _showInstallDialog(context, event.apkFile);
+    } else if (event is ShowOpenSettingsDialog) {
+      _showOpenSettingsDialog(context);
+    } else if (event is ShowSnackbar) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(event.message)));
+    }
+    // Сбрасываем событие, чтобы оно не вызывалось повторно при перерисовке
+    viewModel.uiEvent.value = null;
   }
 
   @override
@@ -127,11 +159,14 @@ class _MenuScreenState extends State<MenuScreen> with TickerProviderStateMixin {
                           foregroundColor: Colors.black,
                         ),
                         onPressed: viewModel.fetchMenu,
-                        child: const Text('Try again', style: TextStyle(
-                          fontSize: 20,
-                          color: Colors.black,
-                          fontWeight: FontWeight.w300,
-                        ),),
+                        child: const Text(
+                          'Try again',
+                          style: TextStyle(
+                            fontSize: 20,
+                            color: Colors.black,
+                            fontWeight: FontWeight.w300,
+                          ),
+                        ),
                       ),
                     ],
                   ),
@@ -139,7 +174,6 @@ class _MenuScreenState extends State<MenuScreen> with TickerProviderStateMixin {
               );
 
             case MenuStatus.loaded:
-              //_fadeController.forward();
               return RefreshIndicator(
                 onRefresh: () async {
                   _fadeController.reset();
@@ -147,19 +181,6 @@ class _MenuScreenState extends State<MenuScreen> with TickerProviderStateMixin {
                 },
                 child: Column(
                   children: [
-                    ValueListenableBuilder<double>(
-                      valueListenable: progressNotifier,
-                      builder: (context, value, _) {
-                        if (value == 0 || value == 1) return const SizedBox.shrink();
-                        return LinearProgressIndicator(
-                          value: value,
-                          minHeight: 4,
-                          backgroundColor: Colors.grey[300],
-                          valueColor: AlwaysStoppedAnimation<Color>(Colors.blue),
-                        );
-                      },
-                    )
-,
                     if (viewModel.isCached)
                       Padding(
                         padding: const EdgeInsets.only(
@@ -199,11 +220,152 @@ class _MenuScreenState extends State<MenuScreen> with TickerProviderStateMixin {
                         },
                       ),
                     ),
+                    // Заменяем ValueListenableBuilder
+                    ValueListenableBuilder<double>(
+                      valueListenable: viewModel.downloadProgress,
+                      // СЛУШАЕМ ИЗ VIEWMODEL
+                      builder: (context, value, _) {
+                        if (value == 0 || value == 1)
+                          return const SizedBox.shrink();
+
+                        return Column(
+                          children: [
+                            LinearProgressIndicator(
+                              value: value,
+                              minHeight: 4,
+                              backgroundColor: Colors.grey[300],
+                              valueColor: const AlwaysStoppedAnimation<Color>(
+                                Colors.blue,
+                              ),
+                            ),
+                            const Padding(
+                              padding: EdgeInsets.only(bottom: 12, top: 7),
+                              child: Center(
+                                child: Text(
+                                  "Downloading new version...",
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.w400,
+                                    fontSize: 16,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
+                        );
+                      },
+                    ),
                   ],
                 ),
               );
           }
         },
+      ),
+    );
+  }
+
+  /// Methods for app updating
+  void _showUpdateDialog(BuildContext context, UpdateInfo updateInfo) {
+    final viewModel = context.read<MenuViewModel>();
+    showDialog(
+      barrierDismissible: !updateInfo.isForceUpdate,
+      context: context,
+      builder: (dialogContext) => WillPopScope(
+        onWillPop: () async => !updateInfo.isForceUpdate,
+        child: AlertDialog(
+          title: const Text("Update is available"),
+          content: Text("New version available: ${updateInfo.latestVersion}"),
+          actions: [
+            if (!updateInfo.isForceUpdate)
+              TextButton(
+                onPressed: () => Navigator.of(dialogContext).pop(),
+                child: const Text("Later"),
+              ),
+            TextButton(
+              onPressed: () {
+                Navigator.of(dialogContext).pop();
+                viewModel.requestPermissionAndStartDownload(
+                  updateInfo.updateUrl,
+                );
+              },
+              child: const Text("Update"),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Future<bool> _showPermissionExplanationDialog(BuildContext context) async {
+    return await showDialog<bool>(
+          context: context,
+          builder: (context) => AlertDialog(
+            title: const Text("Installing permission"),
+            content: const Text(
+              "Need installing permission for installing new version of the app.",
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(false),
+                child: const Text("Cancel"),
+              ),
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(true),
+                child: const Text("Access"),
+              ),
+            ],
+          ),
+        ) ??
+        false;
+  }
+
+  void _showInstallDialog(BuildContext context, File apkFile) {
+    final viewModel = context.read<MenuViewModel>();
+    showDialog(
+      barrierDismissible: false,
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: const Text("Update is ready"),
+        content: const Text(
+          "New version downloaded. Click «Install», for update.",
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(dialogContext).pop(),
+            child: const Text("Cancel"),
+          ),
+          TextButton(
+            onPressed: () {
+              Navigator.of(dialogContext).pop();
+              viewModel.installApk(apkFile);
+            },
+            child: const Text("Install"),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showOpenSettingsDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text("Open settings"),
+        content: const Text(
+          "Access denied. Please, enable app installing in system settings.",
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text("Cancel"),
+          ),
+          TextButton(
+            onPressed: () {
+              openAppSettings();
+              Navigator.of(context).pop();
+            },
+            child: const Text("Settings"),
+          ),
+        ],
       ),
     );
   }

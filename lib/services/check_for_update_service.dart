@@ -1,22 +1,26 @@
-import 'package:ManasYemek/services/services.dart';
 import 'package:dio/dio.dart';
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:package_info_plus/package_info_plus.dart';
-import 'package:get_it/get_it.dart';
 import 'package:talker_flutter/talker_flutter.dart';
+import 'package:ManasYemek/models/models.dart';
 
 class CheckForUpdateService {
-  final Dio _dio = GetIt.instance<Dio>();
+  final Dio _dio;
+  final Talker talker;
   final ValueNotifier<double> progressNotifier;
+
+  CheckForUpdateService({
+    required Dio dio,
+    required this.talker,
+    required this.progressNotifier,
+  }) : _dio = dio;
 
   static const String versionJsonUrl =
       "https://raw.githubusercontent.com/Atoktobekov/yemekManas/test/version.json";
 
-  CheckForUpdateService({required this.progressNotifier});
-
-  /// main method
-  Future<void> checkForUpdate(BuildContext context) async {
+  // main method
+  Future<UpdateInfo?> checkForUpdate() async {
     try {
       final packageInfo = await PackageInfo.fromPlatform();
       final currentVersion = packageInfo.version;
@@ -27,27 +31,28 @@ class CheckForUpdateService {
           ? jsonDecode(response.data)
           : response.data;
 
-      GetIt.instance<Talker>().info(
-        "VERSION JSON RESPONSE: ${response.data.runtimeType}",
-      );
-      GetIt.instance<Talker>().info("VERSION JSON DATA: ${response.data}");
+      talker.info("VERSION JSON RESPONSE: ${response.data.runtimeType}");
+      talker.info("VERSION JSON DATA: ${response.data}");
+
       final latestVersion = data["latest_version"]?.toString();
       final updateRequired = data["update_required"] ?? false;
       final updateUrl = data["update_url"] ?? "";
 
-      if (latestVersion == null || latestVersion.isEmpty) return;
+      if (latestVersion == null || latestVersion.isEmpty) return null;
 
       if (_isNewerVersion(latestVersion, currentVersion)) {
-        _showUpdateDialog(
-          context,
+        return UpdateInfo(
           latestVersion: latestVersion,
-          force: updateRequired,
-          url: updateUrl,
+          isForceUpdate: updateRequired,
+          updateUrl: updateUrl,
         );
       }
+    } on DioException {
+      talker.error("[CheckForUpdateService Error] \n No internet connection");
     } catch (e, st) {
-      GetIt.instance<Talker>().handle(e, st, "[CheckForUpdateService Error]");
+      talker.handle(e, st, "[CheckForUpdateService Error]");
     }
+    return null;
   }
 
   bool _isNewerVersion(String server, String local) {
@@ -64,47 +69,5 @@ class CheckForUpdateService {
     }
 
     return false;
-  }
-
-  /// update dialogue
-  void _showUpdateDialog(
-    BuildContext parentContext, { // <-- screen context
-    required String latestVersion,
-    required bool force,
-    required String url,
-  }) {
-    showDialog(
-      barrierDismissible: !force,
-      context: parentContext,
-      builder: (dialogContext) {
-        return WillPopScope(
-          onWillPop: () async => !force,
-          child: AlertDialog(
-            title: const Text("Update is available"),
-            content: Text("New version available: $latestVersion"),
-            actions: [
-              if (!force)
-                TextButton(
-                  onPressed: () => Navigator.of(dialogContext).pop(),
-                  child: const Text("Later"),
-                ),
-              TextButton(
-                onPressed: () async {
-                  Navigator.of(dialogContext).pop();
-
-                  final downloadService = DownloadAndUpdateApkService();
-                  await downloadService.downloadAndPrepareUpdate(
-                    parentContext, // <-- ВАЖНО: передаём экранный контекст
-                    url,
-                    progressNotifier: progressNotifier,
-                  );
-                },
-                child: const Text("Update"),
-              ),
-            ],
-          ),
-        );
-      },
-    );
   }
 }
