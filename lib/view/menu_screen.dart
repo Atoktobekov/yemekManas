@@ -1,7 +1,10 @@
 import 'package:ManasYemek/view/widgets/widgets.dart';
 import 'package:flutter/material.dart';
+import 'package:get_it/get_it.dart';
 import 'package:provider/provider.dart';
 import 'package:ManasYemek/view_models/menu_view_model.dart';
+import 'package:ManasYemek/services/services.dart';
+import 'package:talker_flutter/talker_flutter.dart';
 
 class MenuScreen extends StatefulWidget {
   const MenuScreen({super.key});
@@ -13,6 +16,7 @@ class MenuScreen extends StatefulWidget {
 class _MenuScreenState extends State<MenuScreen> with TickerProviderStateMixin {
   late AnimationController _fadeController;
   late Animation<double> _fadeAnimation;
+  final progressNotifier = ValueNotifier<double>(0);
 
   @override
   void initState() {
@@ -33,6 +37,10 @@ class _MenuScreenState extends State<MenuScreen> with TickerProviderStateMixin {
       if (viewModel.status == MenuStatus.initial) {
         viewModel.fetchMenu();
       }
+      final checkForUpdateService = CheckForUpdateService(progressNotifier: progressNotifier);
+      if (!mounted) return;
+      checkForUpdateService.checkForUpdate(context);
+      //GetIt.instance<CheckForUpdateService>().checkForUpdate(context);
     });
   }
 
@@ -45,7 +53,6 @@ class _MenuScreenState extends State<MenuScreen> with TickerProviderStateMixin {
   @override
   Widget build(BuildContext context) {
     final viewModel = context.watch<MenuViewModel>();
-
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
@@ -53,6 +60,22 @@ class _MenuScreenState extends State<MenuScreen> with TickerProviderStateMixin {
           'Yemekhane Menu',
           style: TextStyle(fontSize: 25, fontWeight: FontWeight.bold),
         ),
+        actions: [
+          IconButton(
+            onPressed: () {
+              Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (context) =>
+                      TalkerScreen(talker: GetIt.instance<Talker>()),
+                ),
+              );
+            },
+            icon: const Icon(
+              Icons.document_scanner_outlined,
+              color: Colors.black,
+            ),
+          ),
+        ],
       ),
       body: Builder(
         builder: (context) {
@@ -71,11 +94,11 @@ class _MenuScreenState extends State<MenuScreen> with TickerProviderStateMixin {
                   vertical: 20,
                 ),
                 itemCount: 3,
-                separatorBuilder: (_, __) => const Padding(
+                separatorBuilder: (_, _) => const Padding(
                   padding: EdgeInsets.symmetric(vertical: 16, horizontal: 32),
                   child: Divider(thickness: 1, color: Colors.grey),
                 ),
-                itemBuilder: (_, __) => const DayMenuSkeleton(),
+                itemBuilder: (_, _) => const DayMenuSkeleton(),
               );
 
             case MenuStatus.error:
@@ -124,6 +147,19 @@ class _MenuScreenState extends State<MenuScreen> with TickerProviderStateMixin {
                 },
                 child: Column(
                   children: [
+                    ValueListenableBuilder<double>(
+                      valueListenable: progressNotifier,
+                      builder: (context, value, _) {
+                        if (value == 0 || value == 1) return const SizedBox.shrink();
+                        return LinearProgressIndicator(
+                          value: value,
+                          minHeight: 4,
+                          backgroundColor: Colors.grey[300],
+                          valueColor: AlwaysStoppedAnimation<Color>(Colors.blue),
+                        );
+                      },
+                    )
+,
                     if (viewModel.isCached)
                       Padding(
                         padding: const EdgeInsets.only(

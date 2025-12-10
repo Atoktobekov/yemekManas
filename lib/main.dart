@@ -4,7 +4,7 @@ import 'package:ManasYemek/app.dart';
 import 'package:ManasYemek/models/daily_menu.dart';
 import 'package:ManasYemek/models/menu_item.dart';
 import 'package:ManasYemek/repositories/menu_repository.dart';
-import 'package:ManasYemek/services/api_service2.dart';
+import 'package:ManasYemek/services/services.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
@@ -50,6 +50,8 @@ Future<void> main() async {
         apiService: ApiService2(),
       ),
     );
+
+   // GetIt.instance.registerLazySingleton(() => CheckForUpdateService());
 
     runApp(const YemekApp());
   }, (error, stacktrace) {
