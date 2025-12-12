@@ -8,7 +8,7 @@ import 'package:get_it/get_it.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:talker_flutter/talker_flutter.dart';
 import 'package:ManasYemek/services/services.dart';
-import 'package:ManasYemek/view_models/helpers/helpers.dart';
+import 'package:ManasYemek/view_models/ui_events/ui_events.dart';
 
 enum MenuStatus { initial, loading, loaded, error }
 

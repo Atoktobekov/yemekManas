@@ -9,7 +9,7 @@ import 'package:provider/provider.dart';
 import 'package:ManasYemek/view_models/menu_view_model.dart';
 import 'package:talker_flutter/talker_flutter.dart';
 import 'package:ManasYemek/models/models.dart';
-import 'package:ManasYemek/view_models/helpers/helpers.dart';
+import 'package:ManasYemek/view_models/ui_events/ui_events.dart';
 
 class MenuScreen extends StatefulWidget {
   const MenuScreen({super.key});
