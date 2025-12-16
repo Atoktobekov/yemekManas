@@ -20,7 +20,8 @@ The app focuses on convenience and beautifully displaying information about dish
 - [Flutter](https://flutter.dev/) (SDK 3.x)  
 - [Dio](https://pub.dev/packages/dio) — HTTP client for REST API  
 - [Provider](https://pub.dev/packages/provider) - State management
-- [Hive_ce](https://pub.dev/packages/hive_ce_flutter) - Data caching 
+- [Hive_ce](https://pub.dev/packages/hive_ce_flutter) - Data caching
+- [Talker](https://pub.dev/packages/talker_flutter) - Logging 
 
 ---
 
@@ -62,6 +63,7 @@ Project is using standard MVVM pattern.
 - [ImageCaching](https://pub.dev/packages/cached_network_image)
 - [intl](https://pub.dev/packages/intl)
 - [hive_ce](https://pub.dev/packages/hive_ce_flutter)
+- [talker](https://pub.dev/packages/talker_flutter)
 
  ---
 
