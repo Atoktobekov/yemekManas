@@ -20,6 +20,7 @@ The app focuses on convenience and beautifully displaying information about dish
 - [Flutter](https://flutter.dev/) (SDK 3.x)  
 - [Dio](https://pub.dev/packages/dio) — HTTP client for REST API  
 - [Provider](https://pub.dev/packages/provider) - State management
+- [Hive_ce](https://pub.dev/packages/hive_ce_flutter) - Data caching 
 
 ---
 
@@ -35,25 +36,7 @@ The app focuses on convenience and beautifully displaying information about dish
 
 ## 📁 Project Structure
 
-lib/  
-├── main.dart - **Application entry point**  
-├── app.dart - **App file**  
-├── theme/  
-│ └── theme.dart - **App theme**  
-├── models/  
-│ ├── models.dart - **Export of all models**  
-│ ├── daily_menu.dart - **DailyMenu model**  
-│ └── menu_item.dart - **MenuItem model**  
-├── services/  
-│ └── api_service2.dart - **API communication**  
-├── view_models/  
-│ └── menu_view_model.dart - **ViewModel for menu and UI state**  
-└── screens/  
-└── menu_screen.dart - **Main screen with vertical paging**  
-└── widgets/  
-├── menu_item_widget.dart - **Card with details of one meal**  
-├── day_menu_widget.dart - **Widget for displaying a day's menu**  
-└── widgets.dart - **Export for all widget files**
+Project is using standard MVVM pattern. 
 
 - 🧩models/ — Data models (MenuItem, DailyMenu).
 
@@ -78,6 +61,7 @@ lib/
 - [Dio](https://pub.dev/packages/dio)
 - [ImageCaching](https://pub.dev/packages/cached_network_image)
 - [intl](https://pub.dev/packages/intl)
+- [hive_ce](https://pub.dev/packages/hive_ce_flutter)
 
  ---
 
