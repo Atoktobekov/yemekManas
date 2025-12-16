@@ -11,17 +11,20 @@ The app focuses on convenience and beautifully displaying information about dish
 - View menu for multiple days ahead.
 - Beautiful cards for dishes with images, name, and calorie count.
 - Total calories per day.
+- **In-app update system**: The app checks for new versions and allows users to download and install updates seamlessly without visiting an app store.
+- **Offline Caching**: The menu is cached locally, allowing users to view it even without an internet connection.
 - Error handling for data and image loading.
 
 ---
 
 ## 🧩 Technologies
 
-- [Flutter](https://flutter.dev/) (SDK 3.x)  
-- [Dio](https://pub.dev/packages/dio) — HTTP client for REST API  
-- [Provider](https://pub.dev/packages/provider) - State management
-- [Hive_ce](https://pub.dev/packages/hive_ce_flutter) - Data caching
-- [Talker](https://pub.dev/packages/talker_flutter) - Logging 
+- [Flutter](https://flutter.dev/) (SDK 3.x)
+- **Firebase Remote Config** — For remote configuration and managing the in-app update system.
+- **GetIt** — Service Locator for dependency injection.
+- [Dio](https://pub.dev/packages/dio) — HTTP client for REST API.
+- [Hive_ce](https://pub.dev/packages/hive_ce_flutter) — Fast, lightweight, and NoSQL database for data caching.
+- [Talker](https://pub.dev/packages/talker_flutter) — Advanced logger and error handler.
 
 ---
 
@@ -58,12 +61,13 @@ Project is using standard MVVM pattern.
 
 ## 🔗 Dependencies
 
-- [Provider](https://pub.dev/packages/provider)
-- [Dio](https://pub.dev/packages/dio)
-- [ImageCaching](https://pub.dev/packages/cached_network_image)
+- [firebase_remote_config](https://pub.dev/packages/firebase_remote_config)
+- [get_it](https://pub.dev/packages/get_it)
+- [dio](https://pub.dev/packages/dio)
+- [cached_network_image](https://pub.dev/packages/cached_network_image)
+- [hive_ce_flutter](https://pub.dev/packages/hive_ce_flutter)
+- [talker_flutter](https://pub.dev/packages/talker_flutter)
 - [intl](https://pub.dev/packages/intl)
-- [hive_ce](https://pub.dev/packages/hive_ce_flutter)
-- [talker](https://pub.dev/packages/talker_flutter)
 
  ---
 
