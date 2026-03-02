@@ -15,5 +15,6 @@ final ThemeData appTheme = ThemeData(
     ),
     iconTheme: IconThemeData(color: Colors.white),
   ),
+  scaffoldBackgroundColor: Colors.white
 
 );

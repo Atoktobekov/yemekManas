@@ -1,8 +1,10 @@
-import 'package:ManasYemek/theme/theme.dart';
-import 'package:ManasYemek/view/menu_screen.dart';
-import 'package:ManasYemek/view_models/menu_view_model.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+
+import 'package:ManasYemek/features/menu/presentation/providers/menu_provider.dart';
+import 'package:ManasYemek/features/menu/presentation/screens/menu_screen.dart';
+import 'package:ManasYemek/features/update/presentation/providers/update_provider.dart';
+import 'package:ManasYemek/theme/theme.dart';
 
 class YemekApp extends StatelessWidget {
   const YemekApp({super.key});
@@ -11,7 +13,8 @@ class YemekApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiProvider(
       providers: [
-        ChangeNotifierProvider(create: (_) => MenuViewModel()),
+        ChangeNotifierProvider(create: (_) => MenuProvider.fromGetIt()),
+        ChangeNotifierProvider(create: (_) => UpdateProvider.fromGetIt()),
       ],
       child: MaterialApp(
         debugShowCheckedModeBanner: false,
