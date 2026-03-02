@@ -32,7 +32,7 @@
 
 ## 🌐 API
 
-- Публичный API: [YemekManas](https://yemek-api.vercel.app/)  
+- Публичный API: [YemekManas](https://manas-menu-back-adi-fork.vercel.app/)  
 
 ---
 
