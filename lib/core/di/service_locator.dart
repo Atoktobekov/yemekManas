@@ -1,3 +1,4 @@
+import 'package:ManasYemek/core/logging/analytics_talker_observer.dart';
 import 'package:ManasYemek/core/platform/download_and_update_service.dart';
 import 'package:ManasYemek/features/update/data/datasources/update_remote_data_source.dart';
 import 'package:ManasYemek/features/update/data/datasources/update_remote_data_source_impl.dart';
@@ -5,6 +6,7 @@ import 'package:ManasYemek/features/update/domain/repositories/update_repository
 import 'package:ManasYemek/features/update/domain/services/version_comparator.dart';
 import 'package:ManasYemek/features/update/domain/usecases/check_for_update_use_case.dart';
 import 'package:dio/dio.dart';
+import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_remote_config/firebase_remote_config.dart';
 import 'package:get_it/get_it.dart';
@@ -23,14 +25,28 @@ import 'package:ManasYemek/features/menu/domain/repositories/menu_repository.dar
 import 'package:ManasYemek/features/menu/domain/usecases/get_menu_use_case.dart';
 import 'package:ManasYemek/features/update/data/repositories/update_repository_impl.dart';
 
-import 'firebase_options.dart';
+import '../../firebase_options.dart';
 
 final getIt = GetIt.instance;
 
 Future<void> setupDependencies() async {
-  final talker = TalkerFlutter.init();
+  // 1. Сначала инициализируем Firebase (нужен для аналитики)
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+
+  // 2. Инициализируем аналитику
+  final analytics = FirebaseAnalytics.instance;
+  getIt.registerSingleton<FirebaseAnalytics>(analytics);
+  getIt.registerSingleton<FirebaseAnalyticsObserver>(
+    FirebaseAnalyticsObserver(analytics: analytics),
+  );
+
+  // 3. Инициализируем Talker с нашим новым обсервером
+  final talker = TalkerFlutter.init(
+    observer: AnalyticsTalkerObserver(analytics: analytics),
+  );
   getIt.registerSingleton<Talker>(talker);
 
+  // 4. Настраиваем Dio
   final menuDio = Dio(
     BaseOptions(
       baseUrl: ApiConstants.menuBaseUrl,
@@ -48,7 +64,7 @@ Future<void> setupDependencies() async {
   getIt.registerSingleton<Dio>(menuDio);
   getIt.registerLazySingleton<NetworkInfo>(() => NetworkInfo());
 
-  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+  // 5. Настраиваем Remote Config
   final remoteConfig = FirebaseRemoteConfig.instance;
   await remoteConfig.setConfigSettings(
     RemoteConfigSettings(
@@ -64,20 +80,21 @@ Future<void> setupDependencies() async {
   });
   getIt.registerSingleton<FirebaseRemoteConfig>(remoteConfig);
 
+  // 6. Базы данных и репозитории
   await Hive.initFlutter();
   Hive.registerAdapter(DailyMenuEntityAdapter());
   Hive.registerAdapter(MenuItemEntityAdapter());
   final menuBox = await Hive.openBox<DailyMenuEntity>('menu_list_box');
 
   getIt.registerLazySingleton<MenuRemoteDataSource>(
-    () => MenuRemoteDataSource(getIt<Dio>()),
+        () => MenuRemoteDataSource(getIt<Dio>()),
   );
   getIt.registerLazySingleton<MenuLocalDataSource>(
-    () => MenuLocalDataSource(menuBox),
+        () => MenuLocalDataSource(menuBox),
   );
 
   getIt.registerLazySingleton<MenuRepository>(
-    () => MenuRepositoryImpl(
+        () => MenuRepositoryImpl(
       remoteDataSource: getIt<MenuRemoteDataSource>(),
       localDataSource: getIt<MenuLocalDataSource>(),
       networkInfo: getIt<NetworkInfo>(),
@@ -86,20 +103,12 @@ Future<void> setupDependencies() async {
   );
 
   getIt.registerLazySingleton<GetMenuUseCase>(
-    () => GetMenuUseCase(getIt<MenuRepository>()),
+        () => GetMenuUseCase(getIt<MenuRepository>()),
   );
 
   getIt.registerLazySingleton<DownloadAndUpdateApkService>(
-    () =>
-        DownloadAndUpdateApkService(dio: getIt<Dio>(), talker: getIt<Talker>()),
+        () => DownloadAndUpdateApkService(dio: getIt<Dio>(), talker: getIt<Talker>()),
   );
-  /*
-  getIt.registerLazySingleton<CheckForUpdateService>(
-    () => CheckForUpdateService(),
-  );*/
-/*  getIt.registerLazySingleton<UpdateRepositoryImpl>(
-    () => UpdateRepositoryImpl(getIt<CheckForUpdateService>()),
-  );*/
 
   getIt.registerLazySingleton<VersionComparator>(
         () => VersionComparator(),

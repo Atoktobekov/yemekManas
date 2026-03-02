@@ -1,3 +1,5 @@
+import 'package:ManasYemek/core/di/service_locator.dart';
+import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -19,6 +21,9 @@ class YemekApp extends StatelessWidget {
       child: MaterialApp(
         debugShowCheckedModeBanner: false,
         theme: appTheme,
+        navigatorObservers: [
+          getIt<FirebaseAnalyticsObserver>(),
+        ],
         home: const MenuScreen(),
       ),
     );
