@@ -21,7 +21,7 @@ plugins {
 }
 
 android {
-    namespace = "com.karfagen.manasYemek"
+    namespace = "com.karfagen.manas_yemek"
     compileSdk = 36
     ndkVersion = "27.0.12077973"
 

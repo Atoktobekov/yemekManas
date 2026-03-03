@@ -6,7 +6,7 @@ import 'package:provider/provider.dart';
 import 'package:ManasYemek/features/menu/presentation/providers/menu_provider.dart';
 import 'package:ManasYemek/features/menu/presentation/screens/menu_screen.dart';
 import 'package:ManasYemek/features/update/presentation/providers/update_provider.dart';
-import 'package:ManasYemek/theme/theme.dart';
+import 'package:ManasYemek/core/ui/theme.dart';
 
 class YemekApp extends StatelessWidget {
   const YemekApp({super.key});
