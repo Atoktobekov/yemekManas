@@ -3,25 +3,19 @@
 // Check in to version control
 
 import 'package:hive_ce/hive.dart';
-import 'package:ManasYemek/features/menu/domain/entities/daily_menu_entity.dart';
-import 'package:ManasYemek/features/menu/domain/entities/menu_item_entity.dart';
-//import 'package:ManasYemek/models/daily_menu.dart';
-//import 'package:ManasYemek/models/menu_item.dart';
+import 'package:ManasYemek/features/menu/data/models/local/daily_menu_model.dart';
+import 'package:ManasYemek/features/menu/data/models/local/menu_item_model.dart';
 
 extension HiveRegistrar on HiveInterface {
   void registerAdapters() {
-    //registerAdapter(DailyMenuAdapter());
-    registerAdapter(DailyMenuEntityAdapter());
-    //registerAdapter(MenuItemAdapter());
-    registerAdapter(MenuItemEntityAdapter());
+    registerAdapter(DailyMenuModelAdapter());
+    registerAdapter(MenuItemModelAdapter());
   }
 }
 
 extension IsolatedHiveRegistrar on IsolatedHiveInterface {
   void registerAdapters() {
-    //registerAdapter(DailyMenuAdapter());
-    registerAdapter(DailyMenuEntityAdapter());
-    //registerAdapter(MenuItemAdapter());
-    registerAdapter(MenuItemEntityAdapter());
+    registerAdapter(DailyMenuModelAdapter());
+    registerAdapter(MenuItemModelAdapter());
   }
 }

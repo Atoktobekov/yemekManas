@@ -1,30 +1,30 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
-part of 'daily_menu_entity.dart';
+part of 'daily_menu_model.dart';
 
 // **************************************************************************
 // TypeAdapterGenerator
 // **************************************************************************
 
-class DailyMenuEntityAdapter extends TypeAdapter<DailyMenuEntity> {
+class DailyMenuModelAdapter extends TypeAdapter<DailyMenuModel> {
   @override
   final typeId = 2;
 
   @override
-  DailyMenuEntity read(BinaryReader reader) {
+  DailyMenuModel read(BinaryReader reader) {
     final numOfFields = reader.readByte();
     final fields = <int, dynamic>{
       for (int i = 0; i < numOfFields; i++) reader.readByte(): reader.read(),
     };
-    return DailyMenuEntity(
+    return DailyMenuModel(
       date: fields[0] as String,
-      items: (fields[1] as List).cast<MenuItemEntity>(),
+      items: (fields[1] as List).cast<MenuItemModel>(),
       lastUpdate: fields[2] as DateTime,
     );
   }
 
   @override
-  void write(BinaryWriter writer, DailyMenuEntity obj) {
+  void write(BinaryWriter writer, DailyMenuModel obj) {
     writer
       ..writeByte(3)
       ..writeByte(0)
@@ -41,7 +41,7 @@ class DailyMenuEntityAdapter extends TypeAdapter<DailyMenuEntity> {
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      other is DailyMenuEntityAdapter &&
+      other is DailyMenuModelAdapter &&
           runtimeType == other.runtimeType &&
           typeId == other.typeId;
 }

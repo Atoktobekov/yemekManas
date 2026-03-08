@@ -1,5 +1,7 @@
 import 'package:ManasYemek/core/logging/analytics_talker_observer.dart';
 import 'package:ManasYemek/core/platform/download_and_update_service.dart';
+import 'package:ManasYemek/features/menu/data/models/local/daily_menu_model.dart';
+import 'package:ManasYemek/features/menu/data/models/local/menu_item_model.dart';
 import 'package:ManasYemek/features/update/data/datasources/update_remote_data_source.dart';
 import 'package:ManasYemek/features/update/data/datasources/update_remote_data_source_impl.dart';
 import 'package:ManasYemek/features/update/domain/repositories/update_repository.dart';
@@ -19,13 +21,11 @@ import 'package:ManasYemek/core/network/network_info.dart';
 import 'package:ManasYemek/features/menu/data/datasources/menu_local_data_source.dart';
 import 'package:ManasYemek/features/menu/data/datasources/menu_remote_data_source.dart';
 import 'package:ManasYemek/features/menu/data/repositories/menu_repository_impl.dart';
-import 'package:ManasYemek/features/menu/domain/entities/daily_menu_entity.dart';
-import 'package:ManasYemek/features/menu/domain/entities/menu_item_entity.dart';
 import 'package:ManasYemek/features/menu/domain/repositories/menu_repository.dart';
 import 'package:ManasYemek/features/menu/domain/usecases/get_menu_use_case.dart';
 import 'package:ManasYemek/features/update/data/repositories/update_repository_impl.dart';
 
-import '../../firebase_options.dart';
+import 'package:ManasYemek/firebase_options.dart';
 
 final getIt = GetIt.instance;
 
@@ -82,9 +82,10 @@ Future<void> setupDependencies() async {
 
   /// Database and repos setup
   await Hive.initFlutter();
-  Hive.registerAdapter(DailyMenuEntityAdapter());
-  Hive.registerAdapter(MenuItemEntityAdapter());
-  final menuBox = await Hive.openBox<DailyMenuEntity>('menu_list_box');
+  Hive.registerAdapter(DailyMenuModelAdapter());
+  Hive.registerAdapter(MenuItemModelAdapter());
+
+  final menuBox = await Hive.openBox<DailyMenuModel>('menu_list_box');
 
   getIt.registerLazySingleton<MenuRemoteDataSource>(
         () => MenuRemoteDataSource(getIt<Dio>()),

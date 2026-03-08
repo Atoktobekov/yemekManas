@@ -1,18 +1,8 @@
-import 'package:hive_ce_flutter/hive_flutter.dart';
+import 'package:ManasYemek/features/menu/domain/entities/menu_item_entity.dart';
 
-import 'menu_item_entity.dart';
-
-part 'daily_menu_entity.g.dart';
-
-@HiveType(typeId: 2)
 class DailyMenuEntity {
-  @HiveField(0)
   final String date;
-
-  @HiveField(1)
   final List<MenuItemEntity> items;
-
-  @HiveField(2)
   final DateTime lastUpdate;
 
   const DailyMenuEntity({
