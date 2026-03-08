@@ -30,23 +30,23 @@ import '../../firebase_options.dart';
 final getIt = GetIt.instance;
 
 Future<void> setupDependencies() async {
-  // 1. Сначала инициализируем Firebase (нужен для аналитики)
+  /// Firebase setup for analytics
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
 
-  // 2. Инициализируем аналитику
+  /// Analytics initialization
   final analytics = FirebaseAnalytics.instance;
   getIt.registerSingleton<FirebaseAnalytics>(analytics);
   getIt.registerSingleton<FirebaseAnalyticsObserver>(
     FirebaseAnalyticsObserver(analytics: analytics),
   );
 
-  // 3. Инициализируем Talker с нашим новым обсервером
+  /// init talker with new Analytics observer
   final talker = TalkerFlutter.init(
     observer: AnalyticsTalkerObserver(analytics: analytics),
   );
   getIt.registerSingleton<Talker>(talker);
 
-  // 4. Настраиваем Dio
+  /// setting up Dio
   final menuDio = Dio(
     BaseOptions(
       baseUrl: ApiConstants.menuBaseUrl,
@@ -64,7 +64,7 @@ Future<void> setupDependencies() async {
   getIt.registerSingleton<Dio>(menuDio);
   getIt.registerLazySingleton<NetworkInfo>(() => NetworkInfo());
 
-  // 5. Настраиваем Remote Config
+  /// setting up Remote Config
   final remoteConfig = FirebaseRemoteConfig.instance;
   await remoteConfig.setConfigSettings(
     RemoteConfigSettings(
@@ -80,7 +80,7 @@ Future<void> setupDependencies() async {
   });
   getIt.registerSingleton<FirebaseRemoteConfig>(remoteConfig);
 
-  // 6. Базы данных и репозитории
+  /// Database and repos setup
   await Hive.initFlutter();
   Hive.registerAdapter(DailyMenuEntityAdapter());
   Hive.registerAdapter(MenuItemEntityAdapter());
@@ -106,6 +106,7 @@ Future<void> setupDependencies() async {
         () => GetMenuUseCase(getIt<MenuRepository>()),
   );
 
+  /// Update setup
   getIt.registerLazySingleton<DownloadAndUpdateApkService>(
         () => DownloadAndUpdateApkService(dio: getIt<Dio>(), talker: getIt<Talker>()),
   );
