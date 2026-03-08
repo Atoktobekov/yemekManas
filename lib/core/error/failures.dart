@@ -21,3 +21,7 @@ class DataExpiredFailure extends Failure {
     super.message = 'No internet connection and saved data is too old.',
   ]);
 }
+
+class UnknownFailure extends Failure {
+  const UnknownFailure([super.message = 'Unknown error']);
+}
