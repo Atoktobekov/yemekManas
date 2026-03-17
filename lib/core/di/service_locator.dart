@@ -1,3 +1,4 @@
+import 'package:ManasYemek/core/config/cache_config.dart';
 import 'package:ManasYemek/core/logging/analytics_talker_observer.dart';
 import 'package:ManasYemek/core/platform/download_and_update_service.dart';
 import 'package:ManasYemek/features/menu/data/models/local/daily_menu_model.dart';
@@ -94,18 +95,27 @@ Future<void> setupDependencies() async {
         () => MenuLocalDataSource(menuBox),
   );
 
+  getIt.registerLazySingleton<CacheConfig>(
+        () => const CacheConfig(
+      menuTTL: Duration(hours: 4),
+    ),
+  );
+
   getIt.registerLazySingleton<MenuRepository>(
         () => MenuRepositoryImpl(
       remoteDataSource: getIt<MenuRemoteDataSource>(),
       localDataSource: getIt<MenuLocalDataSource>(),
       networkInfo: getIt<NetworkInfo>(),
       talker: getIt<Talker>(),
-    ),
+      cacheConfig: getIt<CacheConfig>(),
+        ),
   );
 
   getIt.registerLazySingleton<GetMenuUseCase>(
         () => GetMenuUseCase(getIt<MenuRepository>()),
   );
+
+
 
   /// Update setup
   getIt.registerLazySingleton<DownloadAndUpdateApkService>(

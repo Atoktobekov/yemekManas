@@ -1,3 +1,4 @@
+import 'package:ManasYemek/core/config/cache_config.dart';
 import 'package:ManasYemek/core/network/network_info.dart';
 import 'package:ManasYemek/features/menu/data/datasources/menu_local_data_source.dart';
 import 'package:ManasYemek/features/menu/data/datasources/menu_remote_data_source.dart';
@@ -13,6 +14,7 @@ class MenuRepositoryImpl implements MenuRepository {
   final MenuLocalDataSource _localDataSource;
   final NetworkInfo _networkInfo;
   final Talker _talker;
+  final CacheConfig _cacheConfig;
 
   bool _isDataFromCacheFlag = false;
 
@@ -21,10 +23,12 @@ class MenuRepositoryImpl implements MenuRepository {
     required MenuLocalDataSource localDataSource,
     required NetworkInfo networkInfo,
     required Talker talker,
+    required CacheConfig cacheConfig,
   }) : _remoteDataSource = remoteDataSource,
         _localDataSource = localDataSource,
         _networkInfo = networkInfo,
-        _talker = talker;
+        _talker = talker,
+        _cacheConfig = cacheConfig;
 
   @override
   Future<Either<Failure, List<DailyMenuEntity>>> getMenus() async {
@@ -58,7 +62,7 @@ class MenuRepositoryImpl implements MenuRepository {
   List<DailyMenuEntity> _filterFresh(List<DailyMenuEntity> data) {
     return data.where((menu) {
       final age = DateTime.now().difference(menu.lastUpdate);
-      return age.inMinutes <= 240;
+      return age <= _cacheConfig.menuTTL;
     }).toList();
   }
 }
