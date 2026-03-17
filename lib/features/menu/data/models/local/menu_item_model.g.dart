@@ -1,22 +1,22 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
-part of 'menu_item_entity.dart';
+part of 'menu_item_model.dart';
 
 // **************************************************************************
 // TypeAdapterGenerator
 // **************************************************************************
 
-class MenuItemEntityAdapter extends TypeAdapter<MenuItemEntity> {
+class MenuItemModelAdapter extends TypeAdapter<MenuItemModel> {
   @override
   final typeId = 1;
 
   @override
-  MenuItemEntity read(BinaryReader reader) {
+  MenuItemModel read(BinaryReader reader) {
     final numOfFields = reader.readByte();
     final fields = <int, dynamic>{
       for (int i = 0; i < numOfFields; i++) reader.readByte(): reader.read(),
     };
-    return MenuItemEntity(
+    return MenuItemModel(
       id: fields[0] as String,
       name: fields[1] as String,
       calories: (fields[2] as num).toInt(),
@@ -26,7 +26,7 @@ class MenuItemEntityAdapter extends TypeAdapter<MenuItemEntity> {
   }
 
   @override
-  void write(BinaryWriter writer, MenuItemEntity obj) {
+  void write(BinaryWriter writer, MenuItemModel obj) {
     writer
       ..writeByte(5)
       ..writeByte(0)
@@ -47,7 +47,7 @@ class MenuItemEntityAdapter extends TypeAdapter<MenuItemEntity> {
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      other is MenuItemEntityAdapter &&
+      other is MenuItemModelAdapter &&
           runtimeType == other.runtimeType &&
           typeId == other.typeId;
 }

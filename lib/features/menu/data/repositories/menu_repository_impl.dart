@@ -1,16 +1,20 @@
-import 'package:ManasYemek/core/error/exceptions.dart';
+import 'package:ManasYemek/core/config/cache_config.dart';
 import 'package:ManasYemek/core/network/network_info.dart';
 import 'package:ManasYemek/features/menu/data/datasources/menu_local_data_source.dart';
 import 'package:ManasYemek/features/menu/data/datasources/menu_remote_data_source.dart';
 import 'package:ManasYemek/features/menu/domain/entities/daily_menu_entity.dart';
 import 'package:ManasYemek/features/menu/domain/repositories/menu_repository.dart';
 import 'package:talker_flutter/talker_flutter.dart';
+import 'package:ManasYemek/core/error/failure_mapper.dart';
+import 'package:ManasYemek/core/error/failures.dart';
+import 'package:dartz/dartz.dart';
 
 class MenuRepositoryImpl implements MenuRepository {
   final MenuRemoteDataSource _remoteDataSource;
   final MenuLocalDataSource _localDataSource;
   final NetworkInfo _networkInfo;
   final Talker _talker;
+  final CacheConfig _cacheConfig;
 
   bool _isDataFromCacheFlag = false;
 
@@ -19,33 +23,36 @@ class MenuRepositoryImpl implements MenuRepository {
     required MenuLocalDataSource localDataSource,
     required NetworkInfo networkInfo,
     required Talker talker,
+    required CacheConfig cacheConfig,
   }) : _remoteDataSource = remoteDataSource,
         _localDataSource = localDataSource,
         _networkInfo = networkInfo,
-        _talker = talker;
+        _talker = talker,
+        _cacheConfig = cacheConfig;
 
   @override
-  Future<List<DailyMenuEntity>> getMenus() async {
+  Future<Either<Failure, List<DailyMenuEntity>>> getMenus() async {
     try {
       final menus = await _remoteDataSource.fetchMenus();
       await _localDataSource.saveMenus(menus);
       _isDataFromCacheFlag = false;
-      return menus;
-    } catch (e, st) {
-      _talker.handle(e, st, '[MenuRepositoryImpl] falling back to cache');
+      return Right(menus);
+    } catch (e) {
+      /// here I should log the error with stacktrace, but I'm sending null
+      _talker.handle(e, null, '[MenuRepositoryImpl] falling back to cache');
 
       final hasInternet = await _networkInfo.isConnected;
       if (hasInternet) {
-        rethrow;
+        return Left(mapExceptionToFailure(e));
       }
 
       _isDataFromCacheFlag = true;
       final freshData = _filterFresh(_localDataSource.getCachedMenus());
       if (freshData.isNotEmpty) {
-        return freshData;
+        return Right(freshData);
       }
 
-      throw DataExpiredException();
+      return const Left(DataExpiredFailure());
     }
   }
 
@@ -55,7 +62,7 @@ class MenuRepositoryImpl implements MenuRepository {
   List<DailyMenuEntity> _filterFresh(List<DailyMenuEntity> data) {
     return data.where((menu) {
       final age = DateTime.now().difference(menu.lastUpdate);
-      return age.inMinutes <= 60;
+      return age <= _cacheConfig.menuTTL;
     }).toList();
   }
 }

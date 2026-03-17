@@ -1,10 +1,15 @@
+import 'package:ManasYemek/core/config/cache_config.dart';
+import 'package:ManasYemek/core/logging/analytics_talker_observer.dart';
 import 'package:ManasYemek/core/platform/download_and_update_service.dart';
+import 'package:ManasYemek/features/menu/data/models/local/daily_menu_model.dart';
+import 'package:ManasYemek/features/menu/data/models/local/menu_item_model.dart';
 import 'package:ManasYemek/features/update/data/datasources/update_remote_data_source.dart';
 import 'package:ManasYemek/features/update/data/datasources/update_remote_data_source_impl.dart';
 import 'package:ManasYemek/features/update/domain/repositories/update_repository.dart';
 import 'package:ManasYemek/features/update/domain/services/version_comparator.dart';
 import 'package:ManasYemek/features/update/domain/usecases/check_for_update_use_case.dart';
 import 'package:dio/dio.dart';
+import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_remote_config/firebase_remote_config.dart';
 import 'package:get_it/get_it.dart';
@@ -17,20 +22,32 @@ import 'package:ManasYemek/core/network/network_info.dart';
 import 'package:ManasYemek/features/menu/data/datasources/menu_local_data_source.dart';
 import 'package:ManasYemek/features/menu/data/datasources/menu_remote_data_source.dart';
 import 'package:ManasYemek/features/menu/data/repositories/menu_repository_impl.dart';
-import 'package:ManasYemek/features/menu/domain/entities/daily_menu_entity.dart';
-import 'package:ManasYemek/features/menu/domain/entities/menu_item_entity.dart';
 import 'package:ManasYemek/features/menu/domain/repositories/menu_repository.dart';
 import 'package:ManasYemek/features/menu/domain/usecases/get_menu_use_case.dart';
 import 'package:ManasYemek/features/update/data/repositories/update_repository_impl.dart';
 
-import 'firebase_options.dart';
+import 'package:ManasYemek/firebase_options.dart';
 
 final getIt = GetIt.instance;
 
 Future<void> setupDependencies() async {
-  final talker = TalkerFlutter.init();
+  /// Firebase setup for analytics
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+
+  /// Analytics initialization
+  final analytics = FirebaseAnalytics.instance;
+  getIt.registerSingleton<FirebaseAnalytics>(analytics);
+  getIt.registerSingleton<FirebaseAnalyticsObserver>(
+    FirebaseAnalyticsObserver(analytics: analytics),
+  );
+
+  /// init talker with new Analytics observer
+  final talker = TalkerFlutter.init(
+    observer: AnalyticsTalkerObserver(analytics: analytics),
+  );
   getIt.registerSingleton<Talker>(talker);
 
+  /// setting up Dio
   final menuDio = Dio(
     BaseOptions(
       baseUrl: ApiConstants.menuBaseUrl,
@@ -48,7 +65,7 @@ Future<void> setupDependencies() async {
   getIt.registerSingleton<Dio>(menuDio);
   getIt.registerLazySingleton<NetworkInfo>(() => NetworkInfo());
 
-  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+  /// setting up Remote Config
   final remoteConfig = FirebaseRemoteConfig.instance;
   await remoteConfig.setConfigSettings(
     RemoteConfigSettings(
@@ -64,42 +81,46 @@ Future<void> setupDependencies() async {
   });
   getIt.registerSingleton<FirebaseRemoteConfig>(remoteConfig);
 
+  /// Database and repos setup
   await Hive.initFlutter();
-  Hive.registerAdapter(DailyMenuEntityAdapter());
-  Hive.registerAdapter(MenuItemEntityAdapter());
-  final menuBox = await Hive.openBox<DailyMenuEntity>('menu_list_box');
+  Hive.registerAdapter(DailyMenuModelAdapter());
+  Hive.registerAdapter(MenuItemModelAdapter());
+
+  final menuBox = await Hive.openBox<DailyMenuModel>('menu_list_box');
 
   getIt.registerLazySingleton<MenuRemoteDataSource>(
-    () => MenuRemoteDataSource(getIt<Dio>()),
+        () => MenuRemoteDataSource(getIt<Dio>()),
   );
   getIt.registerLazySingleton<MenuLocalDataSource>(
-    () => MenuLocalDataSource(menuBox),
+        () => MenuLocalDataSource(menuBox),
+  );
+
+  getIt.registerLazySingleton<CacheConfig>(
+        () => const CacheConfig(
+      menuTTL: Duration(hours: 4),
+    ),
   );
 
   getIt.registerLazySingleton<MenuRepository>(
-    () => MenuRepositoryImpl(
+        () => MenuRepositoryImpl(
       remoteDataSource: getIt<MenuRemoteDataSource>(),
       localDataSource: getIt<MenuLocalDataSource>(),
       networkInfo: getIt<NetworkInfo>(),
       talker: getIt<Talker>(),
-    ),
+      cacheConfig: getIt<CacheConfig>(),
+        ),
   );
 
   getIt.registerLazySingleton<GetMenuUseCase>(
-    () => GetMenuUseCase(getIt<MenuRepository>()),
+        () => GetMenuUseCase(getIt<MenuRepository>()),
   );
 
+
+
+  /// Update setup
   getIt.registerLazySingleton<DownloadAndUpdateApkService>(
-    () =>
-        DownloadAndUpdateApkService(dio: getIt<Dio>(), talker: getIt<Talker>()),
+        () => DownloadAndUpdateApkService(dio: getIt<Dio>(), talker: getIt<Talker>()),
   );
-  /*
-  getIt.registerLazySingleton<CheckForUpdateService>(
-    () => CheckForUpdateService(),
-  );*/
-/*  getIt.registerLazySingleton<UpdateRepositoryImpl>(
-    () => UpdateRepositoryImpl(getIt<CheckForUpdateService>()),
-  );*/
 
   getIt.registerLazySingleton<VersionComparator>(
         () => VersionComparator(),

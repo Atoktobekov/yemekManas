@@ -1,6 +1,6 @@
 import 'dart:async';
 import 'package:ManasYemek/app.dart';
-import 'package:ManasYemek/service_locator.dart';
+import 'package:ManasYemek/core/di/service_locator.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:talker_flutter/talker_flutter.dart';

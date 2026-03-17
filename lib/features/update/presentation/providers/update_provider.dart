@@ -10,7 +10,6 @@ import 'package:permission_handler/permission_handler.dart';
 import 'package:talker_flutter/talker_flutter.dart';
 
 class UpdateProvider extends ChangeNotifier {
-  //final UpdateRepositoryImpl _updateRepository;
   final CheckForUpdateUseCase _checkForUpdateUseCase;
   final DownloadAndUpdateApkService _downloadService;
   final Talker _talker;
@@ -36,14 +35,15 @@ class UpdateProvider extends ChangeNotifier {
   }
 
   Future<void> checkForUpdate() async {
-    try {
-      final updateInfo = await _checkForUpdateUseCase();
+    final result = await _checkForUpdateUseCase();
+
+    result.fold((failure) {
+      _talker.error('[UpdateProvider] failed to check updates: ${failure.message}');
+    }, (updateInfo) {
       if (updateInfo != null) {
         uiEvent.value = ShowUpdateDialog(updateInfo);
       }
-    } catch (e, st) {
-      _talker.handle(e, st, '[UpdateProvider] failed to check updates');
-    }
+    });
   }
 
   Future<void> requestPermissionAndStartDownload(String url) async {

@@ -1,7 +1,7 @@
+import 'package:ManasYemek/features/menu/data/models/remote/menu_response_remote_model.dart';
 import 'package:dio/dio.dart';
 
 import 'package:ManasYemek/core/constants/api_constants.dart';
-import 'package:ManasYemek/features/menu/data/models/menu_response_model.dart';
 import 'package:ManasYemek/features/menu/domain/entities/daily_menu_entity.dart';
 
 class MenuRemoteDataSource {
@@ -17,6 +17,6 @@ class MenuRemoteDataSource {
       throw const FormatException('Invalid menu response format');
     }
 
-    return MenuResponseModel.fromJson(data).menus;
+    return MenuResponseRemoteModel.fromJson(data).toEntities();
   }
 }

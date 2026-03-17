@@ -1,4 +1,4 @@
-import 'package:ManasYemek/core/error/exceptions.dart';
+import 'package:ManasYemek/core/error/failures.dart';
 import 'package:flutter/foundation.dart';
 import 'package:get_it/get_it.dart';
 import 'package:ManasYemek/features/menu/domain/entities/daily_menu_entity.dart';
@@ -44,23 +44,33 @@ class MenuProvider extends ChangeNotifier {
     _message = '';
     notifyListeners();
 
-    try {
-      _menus = await _getMenuUseCase();
+    final result = await _getMenuUseCase();
+
+    result.fold((failure) {
+      _message = _mapFailureToMessage(failure);
+      _talker.error('[MenuProvider] failed to load menu: ${failure.message}');
+      _status = MenuStatus.error;
+      _menus = [];
+    }, (menus) {
+      _menus = menus;
       if (_menuRepository.isDataFromCache()) {
         _message = 'No internet connection. Showing saved data.';
       }
       _status = MenuStatus.loaded;
-    } on DataExpiredException {
-      _status = MenuStatus.error;
-      _menus = [];
-      _message = 'No internet connection and saved data is too old.';
-    } catch (e, st) {
-      _talker.handle(e, st);
-      _status = MenuStatus.error;
-      _menus = [];
-      _message = 'Failed downloading menu. Please try again later';
-    }
+  });
 
     notifyListeners();
+  }
+
+  String _mapFailureToMessage(Failure failure) {
+    if (failure is DataExpiredFailure) {
+      return failure.message;
+    }
+
+    if (failure is NetworkFailure) {
+      return failure.message;
+    }
+
+    return 'Failed downloading menu. Please try again later';
   }
 }
