@@ -1,7 +1,9 @@
+import 'package:ManasYemek/features/dish/presentation/screens/dish_details_screen.dart';
 import 'package:flutter/material.dart';
 
 import 'package:ManasYemek/features/menu/domain/entities/daily_menu_entity.dart';
-import 'package:ManasYemek/features/menu/presentation/screens/dish_details_screen.dart';
+//import 'package:ManasYemek/features/menu/presentation/screens/dish_details_screen.dart';
+
 import 'package:ManasYemek/features/menu/presentation/widgets/menu_item_card.dart';
 
 class DayMenuCard extends StatelessWidget {
