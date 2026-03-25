@@ -58,6 +58,7 @@ class DishProvider extends ChangeNotifier {
   bool get isSubmittingRating => _isSubmittingRating;
 
   bool _hasRated = false;
+
   bool get hasRated => _hasRated;
 
   Stream<List<CommentEntity>> get commentsStream => _dishId.isEmpty
@@ -104,7 +105,9 @@ class DishProvider extends ChangeNotifier {
 
     /// basic filtering
     final forbiddenWords = ['мат1', 'мат2', 'плохоеслово'];
-    if (forbiddenWords.any((word) => trimmedText.toLowerCase().contains(word))) {
+    if (forbiddenWords.any(
+      (word) => trimmedText.toLowerCase().contains(word),
+    )) {
       _errorMessage = 'Комментарий содержит недопустимые выражения';
       notifyListeners();
       return;
@@ -119,11 +122,13 @@ class DishProvider extends ChangeNotifier {
 
     final result = await _addComment(dishId: _dishId, text: trimmedText);
     result.fold(
-          (failure) {
-        _talker.error('[DishProvider] failed to add comment: ${failure.message}');
+      (failure) {
+        _talker.error(
+          '[DishProvider] failed to add comment: ${failure.message}',
+        );
         _errorMessage = failure.message;
       },
-          (_) {
+      (_) {
         _errorMessage = '';
       },
     );
@@ -161,13 +166,15 @@ class DishProvider extends ChangeNotifier {
     );
 
     result.fold(
-          (failure) {
-        _talker.error('[DishProvider] failed to rate dish $_dishId: ${failure.message}');
+      (failure) {
+        _talker.error(
+          '[DishProvider] failed to rate dish $_dishId: ${failure.message}',
+        );
         _errorMessage = failure.message;
 
         _hasRated = false;
       },
-          (newRating) {
+      (newRating) {
         //actual rating from server
         if (_details != null) {
           _details = DishDetailsEntity(

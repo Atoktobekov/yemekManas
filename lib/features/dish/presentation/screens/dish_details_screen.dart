@@ -218,7 +218,7 @@ class _DishDetailsViewState extends State<_DishDetailsView> {
       context: context,
       barrierDismissible: false,
       builder: (context) {
-        Future.delayed(const Duration(seconds: 2), () {
+        Future.delayed(const Duration(milliseconds: 1220), () {
           if (context.mounted) {
             Navigator.pop(context);
           }

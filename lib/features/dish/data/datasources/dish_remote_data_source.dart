@@ -7,10 +7,7 @@ abstract class DishRemoteDataSource {
 
   Stream<List<CommentModel>> watchComments(String dishId);
 
-  Future<void> addComment({
-    required String dishId,
-    required String text,
-  });
+  Future<void> addComment({required String dishId, required String text});
 
   Future<double> rateDish({
     required String dishId,
@@ -28,18 +25,25 @@ class DishRemoteDataSourceImpl implements DishRemoteDataSource {
 
   @override
   Future<DishDetailsModel> getDishDetails(String dishId) async {
-    final snapshot = await _dishesCollection.doc(dishId).get();
+    final docRef = _dishesCollection.doc(dishId);
+    final snapshot = await docRef.get();
 
     if (!snapshot.exists) {
-      final defaultModel = DishDetailsModel(
+      await docRef.set(
+        {
+          'description': '',
+          'rating': FieldValue.increment(0),
+          'ratingsCount': FieldValue.increment(0),
+        },
+        SetOptions(merge: true), // safe from race condition
+      );
+
+      return DishDetailsModel(
         id: dishId,
         description: '',
         rating: 0,
         ratingsCount: 0,
       );
-
-      await _dishesCollection.doc(dishId).set(defaultModel.toFirestore());
-      return defaultModel;
     }
 
     final data = snapshot.data() ?? <String, dynamic>{};
@@ -55,12 +59,12 @@ class DishRemoteDataSourceImpl implements DishRemoteDataSource {
         .snapshots()
         .map(
           (snapshot) => snapshot.docs
-          .map(
-            (doc) =>
-            CommentModel.fromFirestore(id: doc.id, json: doc.data()),
-      )
-          .toList(growable: false),
-    );
+              .map(
+                (doc) =>
+                    CommentModel.fromFirestore(id: doc.id, json: doc.data()),
+              )
+              .toList(growable: false),
+        );
   }
 
   @override
@@ -69,15 +73,14 @@ class DishRemoteDataSourceImpl implements DishRemoteDataSource {
     required String text,
   }) async {
     final trimmed = text.trim();
-    if (trimmed.isEmpty) {
-      return;
-    }
+    if (trimmed.isEmpty) return;
 
+    // create new dish if not exists
     await _dishesCollection.doc(dishId).set(
       {
         'description': '',
-        'rating': 0,
-        'ratingsCount': 0,
+        'rating': FieldValue.increment(0),
+        'ratingsCount': FieldValue.increment(0),
       },
       SetOptions(merge: true),
     );
@@ -96,7 +99,9 @@ class DishRemoteDataSourceImpl implements DishRemoteDataSource {
     final sanitizedRating = selectedRating.clamp(1, 5).toDouble();
     final docRef = _dishesCollection.doc(dishId);
 
-    final newRating = await _firestore.runTransaction<double>((transaction) async {
+    final newRating = await _firestore.runTransaction<double>((
+      transaction,
+    ) async {
       final snapshot = await transaction.get(docRef);
       final data = snapshot.data() ?? <String, dynamic>{};
 
@@ -107,15 +112,11 @@ class DishRemoteDataSourceImpl implements DishRemoteDataSource {
       final recalculatedRating =
           ((currentRating * currentCount) + sanitizedRating) / nextCount;
 
-      transaction.set(
-        docRef,
-        {
-          'description': (data['description'] as String?) ?? '',
-          'rating': recalculatedRating,
-          'ratingsCount': nextCount,
-        },
-        SetOptions(merge: true),
-      );
+      transaction.set(docRef, {
+        'description': (data['description'] as String?) ?? '',
+        'rating': recalculatedRating,
+        'ratingsCount': nextCount,
+      }, SetOptions(merge: true));
 
       return recalculatedRating;
     });
