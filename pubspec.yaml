@@ -5,11 +5,12 @@ publish_to: 'none'
 version: 1.0.1+5
 
 environment:
-  sdk: ^3.8.1
+  sdk: ^3.8.0
 
 dependencies:
   firebase_remote_config: ^6.1.2
   firebase_core: ^4.2.1
+  cloud_firestore: ^6.1.3
   firebase_analytics: ^12.1.2
   permission_handler: ^11.3.1
   flutter_archive: ^6.0.4
@@ -29,6 +30,7 @@ dependencies:
   hive_ce_flutter: ^2.3.3
   internet_connection_checker_plus: ^2.9.1+2
   dartz: ^0.10.1
+  lottie: ^3.2.0
 
 
 dev_dependencies:
@@ -44,6 +46,7 @@ flutter:
 
   assets:
     - assets/fonts/
+    - assets/animations/success.json
 
   fonts:
     - family: InstrumentSans

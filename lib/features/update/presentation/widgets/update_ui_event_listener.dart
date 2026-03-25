@@ -51,7 +51,9 @@ class _UpdateUiEventListenerState extends State<UpdateUiEventListener> {
     } else if (event is ShowOpenSettingsDialog) {
       _showOpenSettingsDialog(context);
     } else if (event is ShowSnackbar) {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(event.message)));
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(event.message)));
     }
 
     updateProvider.uiEvent.value = null;
@@ -67,10 +69,34 @@ class _UpdateUiEventListenerState extends State<UpdateUiEventListener> {
       context: context,
       builder: (dialogContext) => AlertDialog(
         title: const Text('Update is available'),
-        content: Text('New version available: ${updateInfo.latestVersion}'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text('New version: ${updateInfo.latestVersion}'),
+            if (updateInfo.changelog.isNotEmpty) ...[
+              const SizedBox(height: 12),
+              const Text(
+                "What's new:",
+                style: TextStyle(fontWeight: FontWeight.bold),
+              ),
+              const SizedBox(height: 4),
+              // if changelog is too long — wrap with scroll
+              ConstrainedBox(
+                constraints: const BoxConstraints(maxHeight: 200),
+                child: SingleChildScrollView(
+                  child: Text(updateInfo.changelog),
+                ),
+              ),
+            ],
+          ],
+        ),
         actions: [
           if (!updateInfo.isForceUpdate)
-            TextButton(onPressed: () => Navigator.of(dialogContext).pop(), child: const Text('Later')),
+            TextButton(
+              onPressed: () => Navigator.of(dialogContext).pop(),
+              child: const Text('Later'),
+            ),
           TextButton(
             onPressed: () {
               Navigator.of(dialogContext).pop();
@@ -83,18 +109,54 @@ class _UpdateUiEventListenerState extends State<UpdateUiEventListener> {
     );
   }
 
-  Future<bool> _showPermissionExplanationDialog(BuildContext context) async {
-    return await showDialog<bool>(
+ /* void _showUpdateDialog(BuildContext context, UpdateInfoEntity updateInfo) {
+    final updateProvider = context.read<UpdateProvider>();
+    showDialog(
+      barrierDismissible: !updateInfo.isForceUpdate,
       context: context,
-      builder: (_) => AlertDialog(
-        title: const Text('Installing permission'),
-        content: const Text('Need installing permission for installing new version of the app.'),
+      builder: (dialogContext) => AlertDialog(
+        title: const Text('Update is available'),
+        content: Text('New version available: ${updateInfo.latestVersion}'),
         actions: [
-          TextButton(onPressed: () => Navigator.of(context).pop(false), child: const Text('Cancel')),
-          TextButton(onPressed: () => Navigator.of(context).pop(true), child: const Text('Access')),
+          if (!updateInfo.isForceUpdate)
+            TextButton(
+              onPressed: () => Navigator.of(dialogContext).pop(),
+              child: const Text('Later'),
+            ),
+          TextButton(
+            onPressed: () {
+              Navigator.of(dialogContext).pop();
+              updateProvider.requestPermissionAndStartDownload(
+                updateInfo.updateUrl,
+              );
+            },
+            child: const Text('Update'),
+          ),
         ],
       ),
-    ) ??
+    );
+  }*/
+
+  Future<bool> _showPermissionExplanationDialog(BuildContext context) async {
+    return await showDialog<bool>(
+          context: context,
+          builder: (_) => AlertDialog(
+            title: const Text('Installing permission'),
+            content: const Text(
+              'Need installing permission for installing new version of the app.',
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(false),
+                child: const Text('Cancel'),
+              ),
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(true),
+                child: const Text('Access'),
+              ),
+            ],
+          ),
+        ) ??
         false;
   }
 
@@ -127,9 +189,14 @@ class _UpdateUiEventListenerState extends State<UpdateUiEventListener> {
       context: context,
       builder: (_) => AlertDialog(
         title: const Text('Open settings'),
-        content: const Text('Access denied. Please, enable app installing in system settings.'),
+        content: const Text(
+          'Access denied. Please, enable app installing in system settings.',
+        ),
         actions: [
-          TextButton(onPressed: () => Navigator.of(context).pop(), child: const Text('Cancel')),
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text('Cancel'),
+          ),
           TextButton(
             onPressed: () {
               openAppSettings();

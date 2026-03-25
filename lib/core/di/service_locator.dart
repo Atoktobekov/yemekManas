@@ -1,14 +1,26 @@
+import 'dart:io';
+
 import 'package:ManasYemek/core/config/cache_config.dart';
 import 'package:ManasYemek/core/logging/analytics_talker_observer.dart';
 import 'package:ManasYemek/core/platform/download_and_update_service.dart';
+import 'package:ManasYemek/features/dish/data/repositories/dish_repository_impl.dart';
 import 'package:ManasYemek/features/menu/data/models/local/daily_menu_model.dart';
 import 'package:ManasYemek/features/menu/data/models/local/menu_item_model.dart';
+import 'package:ManasYemek/features/update/data/datasources/fake_update_remote_data_source.dart';
 import 'package:ManasYemek/features/update/data/datasources/update_remote_data_source.dart';
 import 'package:ManasYemek/features/update/data/datasources/update_remote_data_source_impl.dart';
+import 'package:ManasYemek/features/update/data/models/update_info_model.dart';
 import 'package:ManasYemek/features/update/domain/repositories/update_repository.dart';
 import 'package:ManasYemek/features/update/domain/services/version_comparator.dart';
 import 'package:ManasYemek/features/update/domain/usecases/check_for_update_use_case.dart';
+import 'package:ManasYemek/features/dish/data/datasources/dish_remote_data_source.dart';
+import 'package:ManasYemek/features/dish/domain/repositories/dish_repository.dart';
+import 'package:ManasYemek/features/dish/domain/usecases/add_comment.dart';
+import 'package:ManasYemek/features/dish/domain/usecases/get_comments.dart';
+import 'package:ManasYemek/features/dish/domain/usecases/get_dish_details.dart';
+import 'package:ManasYemek/features/dish/domain/usecases/rate_dish.dart';
 import 'package:dio/dio.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_remote_config/firebase_remote_config.dart';
@@ -40,6 +52,9 @@ Future<void> setupDependencies() async {
   getIt.registerSingleton<FirebaseAnalyticsObserver>(
     FirebaseAnalyticsObserver(analytics: analytics),
   );
+
+  ///Firestore initialization
+  getIt.registerSingleton<FirebaseFirestore>(FirebaseFirestore.instance);
 
   /// init talker with new Analytics observer
   final talker = TalkerFlutter.init(
@@ -116,6 +131,32 @@ Future<void> setupDependencies() async {
   );
 
 
+  /// Dish feature setup
+  getIt.registerLazySingleton<DishRemoteDataSource>(
+        () => DishRemoteDataSourceImpl(getIt<FirebaseFirestore>()),
+  );
+
+  getIt.registerLazySingleton<DishRepository>(
+        () => DishRepositoryImpl(getIt<DishRemoteDataSource>()),
+  );
+
+  getIt.registerLazySingleton<GetDishDetails>(
+        () => GetDishDetails(getIt<DishRepository>()),
+  );
+
+  getIt.registerLazySingleton<GetComments>(
+        () => GetComments(getIt<DishRepository>()),
+  );
+
+  getIt.registerLazySingleton<AddComment>(
+        () => AddComment(getIt<DishRepository>()),
+  );
+
+  getIt.registerLazySingleton<RateDish>(
+        () => RateDish(getIt<DishRepository>()),
+  );
+
+
 
   /// Update setup
   getIt.registerLazySingleton<DownloadAndUpdateApkService>(
@@ -126,13 +167,30 @@ Future<void> setupDependencies() async {
         () => VersionComparator(),
   );
 
-  getIt.registerLazySingleton<UpdateRemoteDataSource>(
+ /* getIt.registerLazySingleton<UpdateRemoteDataSource>(
         () => UpdateRemoteDataSourceImpl(
       remoteConfig: FirebaseRemoteConfig.instance,
       talker: getIt(),
     ),
-  );
+  );*/
+  const useFakeUpdate = bool.fromEnvironment('USE_FAKE_UPDATE');
 
+  getIt.registerLazySingleton<UpdateRemoteDataSource>(
+        () => useFakeUpdate
+        ? FakeUpdateRemoteDataSource(
+          currentVersion: '1.0.0',
+          modelToReturn: UpdateInfoModel(
+            latestVersion: '1.2.0',
+            isForceUpdate: false,
+            updateUrl: 'https://example.com/app.apk',
+            changelog: '- Новый дизайн главной\n- Исправлен краш при входе',
+          ),
+        )
+        : UpdateRemoteDataSourceImpl(
+      remoteConfig: getIt<FirebaseRemoteConfig>(),
+      talker: getIt<Talker>(),
+    ),
+  );
   getIt.registerLazySingleton<UpdateRepository>(
         () => UpdateRepositoryImpl(
       remoteDataSource: getIt(),
