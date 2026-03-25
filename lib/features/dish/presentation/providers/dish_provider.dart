@@ -24,10 +24,10 @@ class DishProvider extends ChangeNotifier {
     required RateDish rateDish,
     required Talker talker,
   }) : _getDishDetails = getDishDetails,
-        _getComments = getComments,
-        _addComment = addComment,
-        _rateDish = rateDish,
-        _talker = talker;
+       _getComments = getComments,
+       _addComment = addComment,
+       _rateDish = rateDish,
+       _talker = talker;
 
   factory DishProvider.fromGetIt() {
     final getIt = GetIt.instance;
@@ -48,10 +48,17 @@ class DishProvider extends ChangeNotifier {
   String _dishId = '';
 
   DishStatus get status => _status;
+
   DishDetailsEntity? get details => _details;
+
   String get errorMessage => _errorMessage;
+
   bool get isSubmittingComment => _isSubmittingComment;
+
   bool get isSubmittingRating => _isSubmittingRating;
+
+  bool _hasRated = false;
+  bool get hasRated => _hasRated;
 
   Stream<List<CommentEntity>> get commentsStream => _dishId.isEmpty
       ? const Stream<List<CommentEntity>>.empty()
@@ -68,61 +75,110 @@ class DishProvider extends ChangeNotifier {
     notifyListeners();
 
     final result = await _getDishDetails(dishId);
-    result.fold((failure) {
-      _status = DishStatus.error;
-      _errorMessage = failure.message;
-      _talker.error('[DishProvider] failed to load dish $dishId: ${failure.message}');
-    }, (dishDetails) {
-      _details = dishDetails;
-      _status = DishStatus.loaded;
-    });
+    result.fold(
+      (failure) {
+        _status = DishStatus.error;
+        _errorMessage = failure.message;
+        _talker.error(
+          '[DishProvider] failed to load dish $dishId: ${failure.message}',
+        );
+      },
+      (dishDetails) {
+        _details = dishDetails;
+        _status = DishStatus.loaded;
+      },
+    );
 
     notifyListeners();
   }
 
   Future<void> addComment(String text) async {
-    if (_dishId.isEmpty || text.trim().isEmpty || _isSubmittingComment) {
+    final trimmedText = text.trim();
+
+    // length validation
+    if (trimmedText.length > 200) {
+      _errorMessage = 'Комментарий слишком длинный (макс. 200 символов)';
+      notifyListeners();
+      return;
+    }
+
+    /// basic filtering
+    final forbiddenWords = ['мат1', 'мат2', 'плохоеслово'];
+    if (forbiddenWords.any((word) => trimmedText.toLowerCase().contains(word))) {
+      _errorMessage = 'Комментарий содержит недопустимые выражения';
+      notifyListeners();
+      return;
+    }
+
+    if (_dishId.isEmpty || trimmedText.isEmpty || _isSubmittingComment) {
       return;
     }
 
     _isSubmittingComment = true;
     notifyListeners();
 
-    final result = await _addComment(dishId: _dishId, text: text);
-    result.fold((failure) {
-      _talker.error('[DishProvider] failed to add comment: ${failure.message}');
-      _errorMessage = failure.message;
-    }, (_) {
-      _errorMessage = '';
-    });
+    final result = await _addComment(dishId: _dishId, text: trimmedText);
+    result.fold(
+          (failure) {
+        _talker.error('[DishProvider] failed to add comment: ${failure.message}');
+        _errorMessage = failure.message;
+      },
+          (_) {
+        _errorMessage = '';
+      },
+    );
 
     _isSubmittingComment = false;
     notifyListeners();
   }
 
+  ///Rating dish
   Future<void> rateDish(double selectedRating) async {
-    if (_dishId.isEmpty || _isSubmittingRating) {
+    if (_dishId.isEmpty || _isSubmittingRating || _hasRated) {
       return;
     }
 
     _isSubmittingRating = true;
+
+    // immediate UI update
+    if (_details != null) {
+      _details = DishDetailsEntity(
+        id: _details!.id,
+        description: _details!.description,
+        rating: selectedRating,
+        ratingsCount: _details!.ratingsCount + 1,
+      );
+    }
+
+    _hasRated = true;
+    _errorMessage = '';
     notifyListeners();
 
-    final result = await _rateDish(dishId: _dishId, selectedRating: selectedRating);
-    result.fold((failure) {
-      _talker.error('[DishProvider] failed to rate dish $_dishId: ${failure.message}');
-      _errorMessage = failure.message;
-    }, (newRating) {
-      if (_details != null) {
-        _details = DishDetailsEntity(
-          id: _details!.id,
-          description: _details!.description,
-          rating: newRating,
-          ratingsCount: _details!.ratingsCount + 1,
-        );
-      }
-      _errorMessage = '';
-    });
+    // background sending
+    final result = await _rateDish(
+      dishId: _dishId,
+      selectedRating: selectedRating,
+    );
+
+    result.fold(
+          (failure) {
+        _talker.error('[DishProvider] failed to rate dish $_dishId: ${failure.message}');
+        _errorMessage = failure.message;
+
+        _hasRated = false;
+      },
+          (newRating) {
+        //actual rating from server
+        if (_details != null) {
+          _details = DishDetailsEntity(
+            id: _details!.id,
+            description: _details!.description,
+            rating: newRating,
+            ratingsCount: _details!.ratingsCount,
+          );
+        }
+      },
+    );
 
     _isSubmittingRating = false;
     notifyListeners();

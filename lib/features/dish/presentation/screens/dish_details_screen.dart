@@ -4,8 +4,10 @@ import 'package:ManasYemek/features/dish/presentation/widgets/rating_stars.dart'
 import 'package:ManasYemek/features/menu/domain/entities/menu_item_entity.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
+import 'package:lottie/lottie.dart';
 
 class DishDetailsScreen extends StatelessWidget {
   final MenuItemEntity dish;
@@ -32,6 +34,7 @@ class _DishDetailsView extends StatefulWidget {
 
 class _DishDetailsViewState extends State<_DishDetailsView> {
   final TextEditingController _commentController = TextEditingController();
+  bool _showAnimation = false;
 
   @override
   void dispose() {
@@ -43,121 +46,207 @@ class _DishDetailsViewState extends State<_DishDetailsView> {
   Widget build(BuildContext context) {
     return Consumer<DishProvider>(
       builder: (context, provider, _) {
-        return Scaffold(
-          appBar: AppBar(title: Text(widget.dish.name)),
-          body: SafeArea(
-            child: provider.status == DishStatus.loading && provider.details == null
-                ? const Center(child: CircularProgressIndicator())
-                : provider.status == DishStatus.error && provider.details == null
-                ? Center(
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 24),
-                child: Text(
-                  provider.errorMessage,
-                  textAlign: TextAlign.center,
-                  style: const TextStyle(fontSize: 16),
-                ),
+        return Stack(
+          children: [Scaffold(
+            appBar: AppBar(
+              title: Text(widget.dish.name),
+              leading: const BackButton(
+                color: Colors.black,
               ),
-            )
-                : Column(
-              children: [
-                Expanded(
-                  child: ListView(
-                    padding: const EdgeInsets.all(16),
-                    children: [
-                      _DishHeader(dish: widget.dish),
-                      const SizedBox(height: 18),
-                      Text(
-                        '${widget.dish.calories} kcal',
-                        style: Theme.of(context).textTheme.titleMedium,
+            ),
+            body: SafeArea(
+              child:
+                  provider.status == DishStatus.loading &&
+                      provider.details == null
+                  ? const Center(child: CircularProgressIndicator())
+                  : provider.status == DishStatus.error &&
+                        provider.details == null
+                  ? Center(
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 24),
+                        child: Text(
+                          provider.errorMessage,
+                          textAlign: TextAlign.center,
+                          style: const TextStyle(fontSize: 16),
+                        ),
                       ),
-                      const SizedBox(height: 8),
-                      Row(
-                        children: [
-                          RatingStars(
-                            rating: provider.details?.rating ?? 0,
-                            isLoading: provider.isSubmittingRating,
-                            onRatingSelected: provider.rateDish,
+                    )
+                  : Column(
+                      children: [
+                        Expanded(
+                          child: ListView(
+                            padding: const EdgeInsets.all(16),
+                            children: [
+                              _DishHeader(dish: widget.dish),
+                              const SizedBox(height: 18),
+                              Text(
+                                '${widget.dish.calories} kcal',
+                                style: Theme.of(context).textTheme.titleMedium,
+                              ),
+                              const SizedBox(height: 8),
+                              Row(
+                                children: [
+                                  RatingStars(
+                                    rating: provider.details?.rating ?? 0,
+                                    isLoading: provider.isSubmittingRating,
+                                    isEnabled: !provider.hasRated,
+                                    onRatingSelected: (rating) {
+                                      HapticFeedback.mediumImpact();
+
+                                      // send immediately, provider has optimistic update
+                                      provider.rateDish(rating);
+
+                                      _showSuccessDialog(context);
+                                    },
+                                  ),
+                                  const SizedBox(width: 8),
+                                  Text(
+                                    '${(provider.details?.rating ?? 0).toStringAsFixed(1)} (${provider.details?.ratingsCount ?? 0})',
+                                    style: Theme.of(context).textTheme.bodyMedium,
+                                  ),
+                                ],
+                              ),
+                              const SizedBox(height: 16),
+                              Text(
+                                (provider.details?.description.isNotEmpty ??
+                                        false)
+                                    ? provider.details!.description
+                                    : 'Описание пока отсутствует.',
+                                style: Theme.of(context).textTheme.bodyLarge,
+                              ),
+                              const SizedBox(height: 24),
+                              Text(
+                                'Комментарии',
+                                style: Theme.of(context).textTheme.titleLarge,
+                              ),
+                              const SizedBox(height: 10),
+                              StreamBuilder<List<CommentEntity>>(
+                                stream: provider.commentsStream,
+                                builder: (context, snapshot) {
+                                  if (snapshot.connectionState ==
+                                      ConnectionState.waiting) {
+                                    return const Padding(
+                                      padding: EdgeInsets.symmetric(vertical: 20),
+                                      child: Center(
+                                        child: CircularProgressIndicator(),
+                                      ),
+                                    );
+                                  }
+
+                                  if (snapshot.hasError) {
+                                    return const Padding(
+                                      padding: EdgeInsets.symmetric(vertical: 12),
+                                      child: Text(
+                                        'Не удалось загрузить комментарии.',
+                                      ),
+                                    );
+                                  }
+
+                                  final comments =
+                                      snapshot.data ?? const <CommentEntity>[];
+                                  if (comments.isEmpty) {
+                                    return const Padding(
+                                      padding: EdgeInsets.symmetric(vertical: 12),
+                                      child: Text(
+                                        'Пока нет комментариев. Будьте первым!',
+                                      ),
+                                    );
+                                  }
+
+                                  return Column(
+                                    children: comments
+                                        .map(
+                                          (comment) =>
+                                              _CommentTile(comment: comment),
+                                        )
+                                        .toList(growable: false),
+                                  );
+                                },
+                              ),
+                            ],
                           ),
-                          const SizedBox(width: 8),
-                          Text(
-                            '${(provider.details?.rating ?? 0).toStringAsFixed(1)} (${provider.details?.ratingsCount ?? 0})',
-                            style: Theme.of(context).textTheme.bodyMedium,
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 16),
-                      Text(
-                        (provider.details?.description.isNotEmpty ?? false)
-                            ? provider.details!.description
-                            : 'Описание пока отсутствует.',
-                        style: Theme.of(context).textTheme.bodyLarge,
-                      ),
-                      const SizedBox(height: 24),
-                      Text(
-                        'Комментарии',
-                        style: Theme.of(context).textTheme.titleLarge,
-                      ),
-                      const SizedBox(height: 10),
-                      StreamBuilder<List<CommentEntity>>(
-                        stream: provider.commentsStream,
-                        builder: (context, snapshot) {
-                          if (snapshot.connectionState == ConnectionState.waiting) {
-                            return const Padding(
-                              padding: EdgeInsets.symmetric(vertical: 20),
-                              child: Center(child: CircularProgressIndicator()),
-                            );
-                          }
+                        ),
+                        _CommentInput(
+                          controller: _commentController,
+                          isSubmitting: provider.isSubmittingComment,
+                          onSend: () async {
+                            final text = _commentController.text.trim();
+                            if (text.isEmpty) {
+                              return;
+                            }
 
-                          if (snapshot.hasError) {
-                            return const Padding(
-                              padding: EdgeInsets.symmetric(vertical: 12),
-                              child: Text('Не удалось загрузить комментарии.'),
-                            );
-                          }
+                            await provider.addComment(text);
+                            if (!mounted) {
+                              return;
+                            }
 
-                          final comments =
-                              snapshot.data ?? const <CommentEntity>[];
-                          if (comments.isEmpty) {
-                            return const Padding(
-                              padding: EdgeInsets.symmetric(vertical: 12),
-                              child: Text('Пока нет комментариев. Будьте первым!'),
-                            );
-                          }
-
-                          return Column(
-                            children: comments
-                                .map((comment) => _CommentTile(comment: comment))
-                                .toList(growable: false),
-                          );
-                        },
-                      ),
-                    ],
+                            if (provider.errorMessage.isEmpty) {
+                              _commentController.clear();
+                              FocusScope.of(context).unfocus();
+                            } else {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(content: Text(provider.errorMessage)),
+                              );
+                            }
+                          },
+                        ),
+                      ],
+                    ),
+            ),
+          ),
+            if (_showAnimation)
+              IgnorePointer(
+                child: Container(
+                  color: Colors.black.withAlpha(52),
+                  child: Center(
+                    child: Lottie.asset(
+                      'assets/animations/success.json',
+                      width: 200,
+                      repeat: false,
+                    ),
                   ),
                 ),
-                _CommentInput(
-                  controller: _commentController,
-                  isSubmitting: provider.isSubmittingComment,
-                  onSend: () async {
-                    final text = _commentController.text.trim();
-                    if (text.isEmpty) {
-                      return;
-                    }
+              ),
+          ]
+        );
+      },
+    );
+  }
 
-                    await provider.addComment(text);
-                    if (!mounted) {
-                      return;
-                    }
+  void _showSuccessDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) {
+        Future.delayed(const Duration(seconds: 2), () {
+          if (context.mounted) {
+            Navigator.pop(context);
+          }
+        });
 
-                    if (provider.errorMessage.isEmpty) {
-                      _commentController.clear();
-                      FocusScope.of(context).unfocus();
-                    } else {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(content: Text(provider.errorMessage)),
-                      );
-                    }
-                  },
+        return Dialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20),
+          ),
+          child: Padding(
+            padding: const EdgeInsets.all(20),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Lottie.asset(
+                  'assets/animations/success.json',
+                  width: 140,
+                  repeat: false,
+                ),
+                const SizedBox(height: 12),
+                const Text(
+                  'Спасибо!',
+                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.w600),
+                ),
+                const SizedBox(height: 8),
+                const Text(
+                  'Ваша оценка принята 🙌',
+                  textAlign: TextAlign.center,
                 ),
               ],
             ),
@@ -166,6 +255,7 @@ class _DishDetailsViewState extends State<_DishDetailsView> {
       },
     );
   }
+
 }
 
 class _DishHeader extends StatelessWidget {
@@ -198,9 +288,9 @@ class _DishHeader extends StatelessWidget {
         const SizedBox(height: 12),
         Text(
           dish.name,
-          style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-            fontWeight: FontWeight.w600,
-          ),
+          style: Theme.of(
+            context,
+          ).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.w600),
         ),
       ],
     );
@@ -214,7 +304,9 @@ class _CommentTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final formattedDate = DateFormat('dd.MM.yyyy HH:mm').format(comment.createdAt.toLocal());
+    final formattedDate = DateFormat(
+      'dd.MM.yyyy HH:mm',
+    ).format(comment.createdAt.toLocal());
 
     return Container(
       width: double.infinity,
@@ -231,9 +323,9 @@ class _CommentTile extends StatelessWidget {
           const SizedBox(height: 6),
           Text(
             formattedDate,
-            style: Theme.of(context).textTheme.bodySmall?.copyWith(
-              color: Colors.black54,
-            ),
+            style: Theme.of(
+              context,
+            ).textTheme.bodySmall?.copyWith(color: Colors.black54),
           ),
         ],
       ),
@@ -280,10 +372,10 @@ class _CommentInput extends StatelessWidget {
             onPressed: isSubmitting ? null : onSend,
             icon: isSubmitting
                 ? const SizedBox(
-              width: 18,
-              height: 18,
-              child: CircularProgressIndicator(strokeWidth: 2),
-            )
+                    width: 18,
+                    height: 18,
+                    child: CircularProgressIndicator(strokeWidth: 2),
+                  )
                 : const Icon(Icons.send_rounded),
           ),
         ],

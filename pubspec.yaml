@@ -30,6 +30,7 @@ dependencies:
   hive_ce_flutter: ^2.3.3
   internet_connection_checker_plus: ^2.9.1+2
   dartz: ^0.10.1
+  lottie: ^3.2.0
 
 
 dev_dependencies:
@@ -45,6 +46,7 @@ flutter:
 
   assets:
     - assets/fonts/
+    - assets/animations/success.json
 
   fonts:
     - family: InstrumentSans
