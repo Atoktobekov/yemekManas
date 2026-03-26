@@ -75,21 +75,45 @@ class DishRemoteDataSourceImpl implements DishRemoteDataSource {
     final trimmed = text.trim();
     if (trimmed.isEmpty) return;
 
-    // create new dish if not exists
-    await _dishesCollection.doc(dishId).set(
+    final dishDoc = _dishesCollection.doc(dishId);
+
+    await dishDoc.set(
       {
-        'description': '',
         'rating': FieldValue.increment(0),
         'ratingsCount': FieldValue.increment(0),
       },
       SetOptions(merge: true),
     );
 
-    await _dishesCollection.doc(dishId).collection('comments').add({
+    await dishDoc.collection('comments').add({
       'text': trimmed,
       'createdAt': FieldValue.serverTimestamp(),
     });
   }
+/*  @override
+  Future<void> addComment({
+    required String dishId,
+    required String text,
+  }) async {
+    final trimmed = text.trim();
+    if (trimmed.isEmpty) return;
+
+    final dishDoc = _dishesCollection.doc(dishId);
+    final snapshot = await dishDoc.get();
+
+    if (!snapshot.exists) {
+      await dishDoc.set({
+        'description': '',
+        'rating': 0,
+        'ratingsCount': 0,
+      });
+    }
+
+    await dishDoc.collection('comments').add({
+      'text': trimmed,
+      'createdAt': FieldValue.serverTimestamp(),
+    });
+  }*/
 
   @override
   Future<double> rateDish({

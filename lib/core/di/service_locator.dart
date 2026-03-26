@@ -182,8 +182,8 @@ Future<void> setupDependencies() async {
           modelToReturn: UpdateInfoModel(
             latestVersion: '1.2.0',
             isForceUpdate: false,
-            updateUrl: 'https://example.com/app.apk',
-            changelog: '- Новый дизайн главной\n- Исправлен краш при входе',
+            updateUrl: 'https://www.dropbox.com/scl/fi/3qktucnpqrvopk45zl1fk/Yemekhane-2.0.0.zip?rlkey=7wahfwwduao9nlspxgdpy2bxd&st=buj85chb&dl=1',
+            changelog: '- New dish details screen with ratings and comments\n - You can now rate dishes and leave feedback\n - Improved image quality (high-resolution photos)\n   - Faster app startup and better caching\n   - Updated backend API for improved stability and future multi-language support\n   - Fixed analytics issues and various bugs\n  - General performance and stability improvements',
           ),
         )
         : UpdateRemoteDataSourceImpl(

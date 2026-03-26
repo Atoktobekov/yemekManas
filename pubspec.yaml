@@ -2,7 +2,7 @@ name: ManasYemek
 description: "App for yemekhane of Manas University"
 publish_to: 'none'
 
-version: 1.0.1+5
+version: 2.0.0+6
 
 environment:
   sdk: ^3.8.0
