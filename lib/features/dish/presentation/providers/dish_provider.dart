@@ -1,3 +1,5 @@
+import 'package:ManasYemek/core/config/profanity_config.dart';
+import 'package:ManasYemek/core/platform/profanity_utils.dart';
 import 'package:ManasYemek/features/dish/domain/entities/comment_entity.dart';
 import 'package:ManasYemek/features/dish/domain/entities/dish_details_entity.dart';
 import 'package:ManasYemek/features/dish/domain/usecases/add_comment.dart';
@@ -104,10 +106,8 @@ class DishProvider extends ChangeNotifier {
     }
 
     /// basic filtering
-    final forbiddenWords = ['мат1', 'мат2', 'плохоеслово'];
-    if (forbiddenWords.any(
-      (word) => trimmedText.toLowerCase().contains(word),
-    )) {
+
+    if (containsProfanity(trimmedText)) {
       _errorMessage = 'Комментарий содержит недопустимые выражения';
       notifyListeners();
       return;
@@ -191,3 +191,4 @@ class DishProvider extends ChangeNotifier {
     notifyListeners();
   }
 }
+
