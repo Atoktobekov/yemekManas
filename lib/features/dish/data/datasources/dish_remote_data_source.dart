@@ -66,7 +66,6 @@ class DishRemoteDataSourceImpl implements DishRemoteDataSource {
               .toList(growable: false),
         );
   }
-
   @override
   Future<void> addComment({
     required String dishId,
@@ -75,17 +74,18 @@ class DishRemoteDataSourceImpl implements DishRemoteDataSource {
     final trimmed = text.trim();
     if (trimmed.isEmpty) return;
 
-    // create new dish if not exists
-    await _dishesCollection.doc(dishId).set(
-      {
-        'description': '',
-        'rating': FieldValue.increment(0),
-        'ratingsCount': FieldValue.increment(0),
-      },
-      SetOptions(merge: true),
-    );
+    final dishDoc = _dishesCollection.doc(dishId);
+    final snapshot = await dishDoc.get();
 
-    await _dishesCollection.doc(dishId).collection('comments').add({
+    if (!snapshot.exists) {
+      await dishDoc.set({
+        'description': '',
+        'rating': 0,
+        'ratingsCount': 0,
+      });
+    }
+
+    await dishDoc.collection('comments').add({
       'text': trimmed,
       'createdAt': FieldValue.serverTimestamp(),
     });
