@@ -19,29 +19,32 @@ class UpdateDownloadProgress extends StatelessWidget {
           return const SizedBox.shrink();
         }
 
-        return AnimatedSwitcher(
-          duration: const Duration(milliseconds: 250),
-          child: Column(
-            key: const ValueKey("update_progress"),
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              LinearProgressIndicator(
-                value: value,
-                minHeight: 4,
-              ),
-              Padding(
-                padding: const EdgeInsets.only(bottom: 12, top: 7),
-                child: Center(
-                  child: Text(
-                    "Downloading new version... ${(value * 100).toStringAsFixed(0)}%",
-                    style: const TextStyle(
-                      fontWeight: FontWeight.w400,
-                      fontSize: 16,
+        return SafeArea(
+          top: false,
+          child: AnimatedSwitcher(
+            duration: const Duration(milliseconds: 250),
+            child: Column(
+              key: const ValueKey("update_progress"),
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                LinearProgressIndicator(
+                  value: value,
+                  minHeight: 4,
+                ),
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 12, top: 7),
+                  child: Center(
+                    child: Text(
+                      "Downloading new version... ${(value * 100).toStringAsFixed(0)}%",
+                      style: const TextStyle(
+                        fontWeight: FontWeight.w400,
+                        fontSize: 16,
+                      ),
                     ),
                   ),
-                ),
-              )
-            ],
+                )
+              ],
+            ),
           ),
         );
       },

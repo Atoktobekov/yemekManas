@@ -66,7 +66,31 @@ class DishRemoteDataSourceImpl implements DishRemoteDataSource {
               .toList(growable: false),
         );
   }
+
   @override
+  Future<void> addComment({
+    required String dishId,
+    required String text,
+  }) async {
+    final trimmed = text.trim();
+    if (trimmed.isEmpty) return;
+
+    final dishDoc = _dishesCollection.doc(dishId);
+
+    await dishDoc.set(
+      {
+        'rating': FieldValue.increment(0),
+        'ratingsCount': FieldValue.increment(0),
+      },
+      SetOptions(merge: true),
+    );
+
+    await dishDoc.collection('comments').add({
+      'text': trimmed,
+      'createdAt': FieldValue.serverTimestamp(),
+    });
+  }
+/*  @override
   Future<void> addComment({
     required String dishId,
     required String text,
@@ -89,7 +113,7 @@ class DishRemoteDataSourceImpl implements DishRemoteDataSource {
       'text': trimmed,
       'createdAt': FieldValue.serverTimestamp(),
     });
-  }
+  }*/
 
   @override
   Future<double> rateDish({
