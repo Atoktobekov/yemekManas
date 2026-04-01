@@ -47,6 +47,7 @@ flutter:
   assets:
     - assets/fonts/
     - assets/animations/success.json
+    - assets/animations/error_state.json
 
   fonts:
     - family: InstrumentSans

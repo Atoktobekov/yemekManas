@@ -3,6 +3,11 @@ import 'dart:io';
 import 'package:ManasYemek/core/config/cache_config.dart';
 import 'package:ManasYemek/core/logging/analytics_talker_observer.dart';
 import 'package:ManasYemek/core/platform/download_and_update_service.dart';
+import 'package:ManasYemek/features/buffet/data/datasources/buffet_remote_datasource.dart';
+import 'package:ManasYemek/features/buffet/data/repositories/buffet_repository_impl.dart';
+import 'package:ManasYemek/features/buffet/domain/repositories/buffet_repository.dart';
+import 'package:ManasYemek/features/buffet/domain/usecases/get_buffet_menu_usecase.dart';
+import 'package:ManasYemek/features/buffet/presentation/providers/buffet_provider.dart';
 import 'package:ManasYemek/features/dish/data/repositories/dish_repository_impl.dart';
 import 'package:ManasYemek/features/menu/data/models/local/daily_menu_model.dart';
 import 'package:ManasYemek/features/menu/data/models/local/menu_item_model.dart';
@@ -201,4 +206,22 @@ Future<void> setupDependencies() async {
   getIt.registerLazySingleton(
         () => CheckForUpdateUseCase(getIt()),
   );
+  /// Buffet feature setup
+  getIt.registerLazySingleton<BuffetRemoteDataSource>(
+        () => BuffetRemoteDataSource(getIt<Dio>()),
+  );
+
+  getIt.registerLazySingleton<BuffetRepository>(
+        () => BuffetRepositoryImpl(getIt<BuffetRemoteDataSource>()),
+  );
+
+  getIt.registerLazySingleton<GetBuffetMenuUseCase>(
+        () => GetBuffetMenuUseCase(getIt<BuffetRepository>()),
+  );
+
+  getIt.registerFactory<BuffetProvider>(
+        () => BuffetProvider(getIt<GetBuffetMenuUseCase>()),
+  );
 }
+
+
