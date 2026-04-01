@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:lottie/lottie.dart';
 
-class BuffetErrorView extends StatelessWidget {
-  final VoidCallback onRetry;
+class ErrorScreen extends StatelessWidget {
+  final VoidCallback? onRetry;
 
-  const BuffetErrorView({
+  const ErrorScreen({
     super.key,
-    required this.onRetry,
+    this.onRetry,
   });
 
   @override
@@ -27,7 +27,7 @@ class BuffetErrorView extends StatelessWidget {
             ),
             const SizedBox(height: 12),
             const Text(
-              'Упс, меню пока недоступно',
+              'Упс, страница пока недоступна',
               textAlign: TextAlign.center,
               style: TextStyle(
                 fontSize: 18,
@@ -46,6 +46,7 @@ class BuffetErrorView extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 24),
+            if (onRetry != null)
             SizedBox(
               width: double.infinity,
               child: ElevatedButton.icon(

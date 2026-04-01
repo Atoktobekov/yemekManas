@@ -1,4 +1,4 @@
-import 'package:ManasYemek/features/buffet/presentation/widgets/buffet_error_view.dart';
+import 'package:ManasYemek/shared/presentation/screens/error_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:ManasYemek/features/buffet/domain/entities/buffet_category_entity.dart';
@@ -128,7 +128,7 @@ class _BuffetScreenState extends State<BuffetScreen> {
               BuffetStatus.initial || BuffetStatus.loading => const Center(
                 child: CircularProgressIndicator(),
               ),
-              BuffetStatus.error => BuffetErrorView(
+              BuffetStatus.error => ErrorScreen(
                 onRetry: () => context.read<BuffetProvider>().loadMenu(),
               ),
               BuffetStatus.loaded => _buildContent(provider.menu!),

@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:ManasYemek/features/menu/presentation/widgets/day_menu_skeleton.dart';
+import 'package:ManasYemek/shared/presentation/screens/error_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:provider/provider.dart';
@@ -101,15 +102,7 @@ class _MenuScreenState extends State<MenuScreen> with TickerProviderStateMixin {
                   itemBuilder: (_, _) => const DayMenuSkeleton(),
                 );
               case MenuStatus.error:
-                return Center(
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Text(menuProvider.message, textAlign: TextAlign.center),
-                      ElevatedButton(onPressed: menuProvider.fetchMenu, child: const Text('Try again')),
-                    ],
-                  ),
-                );
+                return ErrorScreen(onRetry: menuProvider.fetchMenu);
               case MenuStatus.loaded:
                 return RefreshIndicator(
                   onRefresh: () async {
