@@ -1,6 +1,9 @@
+import 'package:ManasYemek/core/error/failure_mapper.dart';
+import 'package:ManasYemek/core/error/failures.dart';
+import 'package:ManasYemek/features/buffet/data/datasources/buffet_remote_datasource.dart';
 import 'package:ManasYemek/features/buffet/domain/entities/buffet_menu_entity.dart';
 import 'package:ManasYemek/features/buffet/domain/repositories/buffet_repository.dart';
-import 'package:ManasYemek/features/buffet/data/datasources/buffet_remote_datasource.dart';
+import 'package:dartz/dartz.dart';
 
 class BuffetRepositoryImpl implements BuffetRepository {
   final BuffetRemoteDataSource _dataSource;
@@ -8,5 +11,12 @@ class BuffetRepositoryImpl implements BuffetRepository {
   const BuffetRepositoryImpl(this._dataSource);
 
   @override
-  Future<BuffetMenuEntity> getMenu() => _dataSource.fetchMenu();
+  Future<Either<Failure, BuffetMenuEntity>> getMenu() async {
+    try {
+      final menu = await _dataSource.fetchMenu();
+      return Right(menu);
+    } catch (e) {
+      return Left(mapExceptionToFailure(e));
+    }
+  }
 }
