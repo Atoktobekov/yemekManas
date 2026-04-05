@@ -7,6 +7,7 @@ import 'package:ManasYemek/features/dish/presentation/widgets/rating_stars.dart'
 import 'package:ManasYemek/features/dish/presentation/widgets/skeleton/comments_skeleton_list.dart';
 import 'package:ManasYemek/features/dish/presentation/widgets/skeleton/dish_details_skeleton.dart';
 import 'package:ManasYemek/features/menu/domain/entities/menu_item_entity.dart';
+import 'package:ManasYemek/shared/presentation/screens/error_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:lottie/lottie.dart';
@@ -103,16 +104,7 @@ class _DishDetailsViewState extends State<_DishDetailsView>
             child: isInitialLoading
                 ? const DishDetailsSkeleton()
                 : isError
-                ? Center(
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 24),
-                child: Text(
-                  provider.errorMessage,
-                  textAlign: TextAlign.center,
-                  style: const TextStyle(fontSize: 16),
-                ),
-              ),
-            )
+                ? ErrorScreen()
                 : FadeTransition(
               opacity: _fadeAnimation,
               child: SlideTransition(

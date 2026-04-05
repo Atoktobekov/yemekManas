@@ -1,4 +1,6 @@
 import 'package:ManasYemek/core/di/service_locator.dart';
+import 'package:ManasYemek/features/buffet/presentation/providers/buffet_provider.dart';
+import 'package:ManasYemek/root_page.dart';
 import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -17,6 +19,7 @@ class YemekApp extends StatelessWidget {
       providers: [
         ChangeNotifierProvider(create: (_) => MenuProvider.fromGetIt()),
         ChangeNotifierProvider(create: (_) => UpdateProvider.fromGetIt()),
+        ChangeNotifierProvider(create: (_) => BuffetProvider.fromGetIt()),
       ],
       child: MaterialApp(
         debugShowCheckedModeBanner: false,
@@ -24,7 +27,7 @@ class YemekApp extends StatelessWidget {
         navigatorObservers: [
           getIt<FirebaseAnalyticsObserver>(),
         ],
-        home: const MenuScreen(),
+        home: const RootPage(),
       ),
     );
   }

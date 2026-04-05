@@ -2,7 +2,7 @@ name: ManasYemek
 description: "App for yemekhane of Manas University"
 publish_to: 'none'
 
-version: 2.0.0+6
+version: 2.1.0+7
 
 environment:
   sdk: ^3.8.0
@@ -47,6 +47,7 @@ flutter:
   assets:
     - assets/fonts/
     - assets/animations/success.json
+    - assets/animations/error_state.json
 
   fonts:
     - family: InstrumentSans
