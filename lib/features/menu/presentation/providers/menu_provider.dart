@@ -1,9 +1,9 @@
 import 'package:ManasYemek/core/error/failures.dart';
-import 'package:flutter/foundation.dart';
-import 'package:get_it/get_it.dart';
 import 'package:ManasYemek/features/menu/domain/entities/daily_menu_entity.dart';
 import 'package:ManasYemek/features/menu/domain/repositories/menu_repository.dart';
 import 'package:ManasYemek/features/menu/domain/usecases/get_menu_use_case.dart';
+import 'package:flutter/foundation.dart';
+import 'package:get_it/get_it.dart';
 import 'package:talker_flutter/talker_flutter.dart';
 
 enum MenuStatus { initial, loading, loaded, error }
@@ -18,8 +18,8 @@ class MenuProvider extends ChangeNotifier {
     required MenuRepository menuRepository,
     required Talker talker,
   }) : _getMenuUseCase = getMenuUseCase,
-        _menuRepository = menuRepository,
-        _talker = talker;
+       _menuRepository = menuRepository,
+       _talker = talker;
 
   factory MenuProvider.fromGetIt() {
     final getIt = GetIt.instance;
@@ -32,45 +32,45 @@ class MenuProvider extends ChangeNotifier {
 
   MenuStatus _status = MenuStatus.initial;
   List<DailyMenuEntity> _menus = [];
-  String _message = '';
+  String _messageKey = '';
 
   MenuStatus get status => _status;
   List<DailyMenuEntity> get menus => _menus;
-  String get message => _message;
+  String get messageKey => _messageKey;
   bool get isCached => _menuRepository.isDataFromCache();
 
   Future<void> fetchMenu() async {
     _status = MenuStatus.loading;
-    _message = '';
+    _messageKey = '';
     notifyListeners();
 
     final result = await _getMenuUseCase();
 
     result.fold((failure) {
-      _message = _mapFailureToMessage(failure);
+      _messageKey = _mapFailureToMessageKey(failure);
       _talker.error('[MenuProvider] failed to load menu: ${failure.message}');
       _status = MenuStatus.error;
       _menus = [];
     }, (menus) {
       _menus = menus;
       if (_menuRepository.isDataFromCache()) {
-        _message = 'No internet connection. Showing saved data.';
+        _messageKey = 'noInternetCached';
       }
       _status = MenuStatus.loaded;
-  });
+    });
 
     notifyListeners();
   }
 
-  String _mapFailureToMessage(Failure failure) {
+  String _mapFailureToMessageKey(Failure failure) {
     if (failure is DataExpiredFailure) {
-      return failure.message;
+      return 'errorSubtitle';
     }
 
     if (failure is NetworkFailure) {
-      return failure.message;
+      return 'errorSubtitle';
     }
 
-    return 'Failed downloading menu. Please try again later';
+    return 'menuLoadFailed';
   }
 }

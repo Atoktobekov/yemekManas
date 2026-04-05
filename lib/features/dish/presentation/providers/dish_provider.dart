@@ -100,7 +100,7 @@ class DishProvider extends ChangeNotifier {
 
     // length validation
     if (trimmedText.length > 200) {
-      _errorMessage = 'Комментарий слишком длинный (макс. 200 символов)';
+      _errorMessage = 'commentTooLong';
       notifyListeners();
       return;
     }
@@ -108,7 +108,7 @@ class DishProvider extends ChangeNotifier {
     /// basic filtering
 
     if (containsProfanity(trimmedText)) {
-      _errorMessage = 'Комментарий содержит недопустимые выражения';
+      _errorMessage = 'commentBlocked';
       notifyListeners();
       return;
     }

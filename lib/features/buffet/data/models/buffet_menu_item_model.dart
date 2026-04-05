@@ -1,11 +1,16 @@
 import 'package:ManasYemek/features/buffet/domain/entities/buffet_menu_item_entity.dart';
 
-class BuffetMenuItemModel extends BuffetMenuItemEntity {
+class BuffetMenuItemModel {
+  final String id;
+  final String name;
+  final double price;
+  final String photoUrl;
+
   const BuffetMenuItemModel({
-    required super.id,
-    required super.name,
-    required super.price,
-    required super.photoUrl,
+    required this.id,
+    required this.name,
+    required this.price,
+    required this.photoUrl,
   });
 
   factory BuffetMenuItemModel.fromJson(Map<String, dynamic> json) {
@@ -14,6 +19,15 @@ class BuffetMenuItemModel extends BuffetMenuItemEntity {
       name: json['name'] as String,
       price: (json['price'] as num).toDouble(),
       photoUrl: json['photoUrl'] as String,
+    );
+  }
+
+  BuffetMenuItemEntity toEntity() {
+    return BuffetMenuItemEntity(
+      id: id,
+      name: name,
+      price: price,
+      photoUrl: photoUrl,
     );
   }
 }

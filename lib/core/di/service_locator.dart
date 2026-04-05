@@ -1,31 +1,13 @@
-import 'dart:io';
-
-import 'package:ManasYemek/core/config/cache_config.dart';
+import 'package:ManasYemek/core/constants/api_constants.dart';
+import 'package:ManasYemek/core/di/modules/buffet_module.dart';
+import 'package:ManasYemek/core/di/modules/dish_module.dart';
+import 'package:ManasYemek/core/di/modules/menu_module.dart';
+import 'package:ManasYemek/core/di/modules/update_module.dart';
 import 'package:ManasYemek/core/logging/analytics_talker_observer.dart';
-import 'package:ManasYemek/core/platform/download_and_update_service.dart';
-import 'package:ManasYemek/features/buffet/data/datasources/buffet_remote_datasource.dart';
-import 'package:ManasYemek/features/buffet/data/repositories/buffet_repository_impl.dart';
-import 'package:ManasYemek/features/buffet/domain/repositories/buffet_repository.dart';
-import 'package:ManasYemek/features/buffet/domain/usecases/get_buffet_menu_usecase.dart';
-import 'package:ManasYemek/features/buffet/presentation/providers/buffet_provider.dart';
-import 'package:ManasYemek/features/dish/data/repositories/dish_repository_impl.dart';
-import 'package:ManasYemek/features/menu/data/models/local/daily_menu_model.dart';
-import 'package:ManasYemek/features/menu/data/models/local/menu_item_model.dart';
-import 'package:ManasYemek/features/update/data/datasources/fake_update_remote_data_source.dart';
-import 'package:ManasYemek/features/update/data/datasources/update_remote_data_source.dart';
-import 'package:ManasYemek/features/update/data/datasources/update_remote_data_source_impl.dart';
-import 'package:ManasYemek/features/update/data/models/update_info_model.dart';
-import 'package:ManasYemek/features/update/domain/repositories/update_repository.dart';
-import 'package:ManasYemek/features/update/domain/services/version_comparator.dart';
-import 'package:ManasYemek/features/update/domain/usecases/check_for_update_use_case.dart';
-import 'package:ManasYemek/features/dish/data/datasources/dish_remote_data_source.dart';
-import 'package:ManasYemek/features/dish/domain/repositories/dish_repository.dart';
-import 'package:ManasYemek/features/dish/domain/usecases/add_comment.dart';
-import 'package:ManasYemek/features/dish/domain/usecases/get_comments.dart';
-import 'package:ManasYemek/features/dish/domain/usecases/get_dish_details.dart';
-import 'package:ManasYemek/features/dish/domain/usecases/rate_dish.dart';
-import 'package:dio/dio.dart';
+import 'package:ManasYemek/core/network/network_info.dart';
+import 'package:ManasYemek/firebase_options.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:dio/dio.dart';
 import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_remote_config/firebase_remote_config.dart';
@@ -34,41 +16,25 @@ import 'package:hive_ce_flutter/hive_flutter.dart';
 import 'package:talker_dio_logger/talker_dio_logger.dart';
 import 'package:talker_flutter/talker_flutter.dart';
 
-import 'package:ManasYemek/core/constants/api_constants.dart';
-import 'package:ManasYemek/core/network/network_info.dart';
-import 'package:ManasYemek/features/menu/data/datasources/menu_local_data_source.dart';
-import 'package:ManasYemek/features/menu/data/datasources/menu_remote_data_source.dart';
-import 'package:ManasYemek/features/menu/data/repositories/menu_repository_impl.dart';
-import 'package:ManasYemek/features/menu/domain/repositories/menu_repository.dart';
-import 'package:ManasYemek/features/menu/domain/usecases/get_menu_use_case.dart';
-import 'package:ManasYemek/features/update/data/repositories/update_repository_impl.dart';
-
-import 'package:ManasYemek/firebase_options.dart';
-
 final getIt = GetIt.instance;
 
 Future<void> setupDependencies() async {
-  /// Firebase setup for analytics
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
 
-  /// Analytics initialization
   final analytics = FirebaseAnalytics.instance;
   getIt.registerSingleton<FirebaseAnalytics>(analytics);
   getIt.registerSingleton<FirebaseAnalyticsObserver>(
     FirebaseAnalyticsObserver(analytics: analytics),
   );
 
-  ///Firestore initialization
   getIt.registerSingleton<FirebaseFirestore>(FirebaseFirestore.instance);
 
-  /// init talker with new Analytics observer
   final talker = TalkerFlutter.init(
     observer: AnalyticsTalkerObserver(analytics: analytics),
   );
   getIt.registerSingleton<Talker>(talker);
 
-  /// setting up Dio
-  final menuDio = Dio(
+  final dio = Dio(
     BaseOptions(
       baseUrl: ApiConstants.menuBaseUrl,
       connectTimeout: const Duration(seconds: 15),
@@ -76,16 +42,16 @@ Future<void> setupDependencies() async {
     ),
   );
 
-  menuDio.interceptors.add(
+  dio.interceptors.add(
     TalkerDioLogger(
       settings: const TalkerDioLoggerSettings(printResponseData: false),
       talker: talker,
     ),
   );
-  getIt.registerSingleton<Dio>(menuDio);
+
+  getIt.registerSingleton<Dio>(dio);
   getIt.registerLazySingleton<NetworkInfo>(() => NetworkInfo());
 
-  /// setting up Remote Config
   final remoteConfig = FirebaseRemoteConfig.instance;
   await remoteConfig.setConfigSettings(
     RemoteConfigSettings(
@@ -101,127 +67,10 @@ Future<void> setupDependencies() async {
   });
   getIt.registerSingleton<FirebaseRemoteConfig>(remoteConfig);
 
-  /// Database and repos setup
   await Hive.initFlutter();
-  Hive.registerAdapter(DailyMenuModelAdapter());
-  Hive.registerAdapter(MenuItemModelAdapter());
 
-  final menuBox = await Hive.openBox<DailyMenuModel>('menu_list_box');
-
-  getIt.registerLazySingleton<MenuRemoteDataSource>(
-        () => MenuRemoteDataSource(getIt<Dio>()),
-  );
-  getIt.registerLazySingleton<MenuLocalDataSource>(
-        () => MenuLocalDataSource(menuBox),
-  );
-
-  getIt.registerLazySingleton<CacheConfig>(
-        () => const CacheConfig(
-      menuTTL: Duration(hours: 4),
-    ),
-  );
-
-  getIt.registerLazySingleton<MenuRepository>(
-        () => MenuRepositoryImpl(
-      remoteDataSource: getIt<MenuRemoteDataSource>(),
-      localDataSource: getIt<MenuLocalDataSource>(),
-      networkInfo: getIt<NetworkInfo>(),
-      talker: getIt<Talker>(),
-      cacheConfig: getIt<CacheConfig>(),
-        ),
-  );
-
-  getIt.registerLazySingleton<GetMenuUseCase>(
-        () => GetMenuUseCase(getIt<MenuRepository>()),
-  );
-
-
-  /// Dish feature setup
-  getIt.registerLazySingleton<DishRemoteDataSource>(
-        () => DishRemoteDataSourceImpl(getIt<FirebaseFirestore>()),
-  );
-
-  getIt.registerLazySingleton<DishRepository>(
-        () => DishRepositoryImpl(getIt<DishRemoteDataSource>()),
-  );
-
-  getIt.registerLazySingleton<GetDishDetails>(
-        () => GetDishDetails(getIt<DishRepository>()),
-  );
-
-  getIt.registerLazySingleton<GetComments>(
-        () => GetComments(getIt<DishRepository>()),
-  );
-
-  getIt.registerLazySingleton<AddComment>(
-        () => AddComment(getIt<DishRepository>()),
-  );
-
-  getIt.registerLazySingleton<RateDish>(
-        () => RateDish(getIt<DishRepository>()),
-  );
-
-
-
-  /// Update setup
-  getIt.registerLazySingleton<DownloadAndUpdateApkService>(
-        () => DownloadAndUpdateApkService(dio: getIt<Dio>(), talker: getIt<Talker>()),
-  );
-
-  getIt.registerLazySingleton<VersionComparator>(
-        () => VersionComparator(),
-  );
-
- /* getIt.registerLazySingleton<UpdateRemoteDataSource>(
-        () => UpdateRemoteDataSourceImpl(
-      remoteConfig: FirebaseRemoteConfig.instance,
-      talker: getIt(),
-    ),
-  );*/
-  const useFakeUpdate = bool.fromEnvironment('USE_FAKE_UPDATE');
-
-  getIt.registerLazySingleton<UpdateRemoteDataSource>(
-        () => useFakeUpdate
-        ? FakeUpdateRemoteDataSource(
-          currentVersion: '1.0.0',
-          modelToReturn: UpdateInfoModel(
-            latestVersion: '1.2.0',
-            isForceUpdate: false,
-            updateUrl: 'https://www.dropbox.com/scl/fi/3qktucnpqrvopk45zl1fk/Yemekhane-2.0.0.zip?rlkey=7wahfwwduao9nlspxgdpy2bxd&st=buj85chb&dl=1',
-            changelog: '- New dish details screen with ratings and comments\n - You can now rate dishes and leave feedback\n - Improved image quality (high-resolution photos)\n   - Faster app startup and better caching\n   - Updated backend API for improved stability and future multi-language support\n   - Fixed analytics issues and various bugs\n  - General performance and stability improvements',
-          ),
-        )
-        : UpdateRemoteDataSourceImpl(
-      remoteConfig: getIt<FirebaseRemoteConfig>(),
-      talker: getIt<Talker>(),
-    ),
-  );
-  getIt.registerLazySingleton<UpdateRepository>(
-        () => UpdateRepositoryImpl(
-      remoteDataSource: getIt(),
-      versionComparator: getIt(),
-    ),
-  );
-
-  getIt.registerLazySingleton(
-        () => CheckForUpdateUseCase(getIt()),
-  );
-  /// Buffet feature setup
-  getIt.registerLazySingleton<BuffetRemoteDataSource>(
-        () => BuffetRemoteDataSource(getIt<Dio>()),
-  );
-
-  getIt.registerLazySingleton<BuffetRepository>(
-        () => BuffetRepositoryImpl(getIt<BuffetRemoteDataSource>()),
-  );
-
-  getIt.registerLazySingleton<GetBuffetMenuUseCase>(
-        () => GetBuffetMenuUseCase(getIt<BuffetRepository>()),
-  );
-
-  getIt.registerFactory<BuffetProvider>(
-        () => BuffetProvider(getIt<GetBuffetMenuUseCase>()),
-  );
+  await registerMenuModule(getIt);
+  registerDishModule(getIt);
+  registerUpdateModule(getIt);
+  registerBuffetModule(getIt);
 }
-
-

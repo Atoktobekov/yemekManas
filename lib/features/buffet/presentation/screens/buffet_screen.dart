@@ -1,3 +1,4 @@
+import 'package:ManasYemek/core/localization/app_localizations.dart';
 import 'package:ManasYemek/shared/presentation/screens/error_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -119,7 +120,7 @@ class _BuffetScreenState extends State<BuffetScreen> {
     return Scaffold(
       backgroundColor: const Color(0xFFFFF8EE),
       appBar: AppBar(
-        title: const Text('Buffet Menu', style: TextStyle(fontSize: 25, fontWeight: FontWeight.bold)),
+        title: Text(context.l10n.tr('buffetTitle'), style: const TextStyle(fontSize: 25, fontWeight: FontWeight.bold)),
       ),
       body: SafeArea(
         child: Consumer<BuffetProvider>(

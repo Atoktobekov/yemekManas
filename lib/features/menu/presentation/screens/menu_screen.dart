@@ -1,6 +1,8 @@
 import 'dart:async';
 
+import 'package:ManasYemek/core/localization/app_localizations.dart';
 import 'package:ManasYemek/features/menu/presentation/widgets/day_menu_skeleton.dart';
+import 'package:ManasYemek/shared/presentation/providers/settings_provider.dart';
 import 'package:ManasYemek/shared/presentation/screens/error_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
@@ -66,6 +68,68 @@ class _MenuScreenState extends State<MenuScreen> with TickerProviderStateMixin {
     }
   }
 
+
+
+  void _showSettingsSheet() {
+    final settings = context.read<SettingsProvider>();
+    showModalBottomSheet<void>(
+      context: context,
+      builder: (context) => SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              ListTile(
+                title: const Text('Theme: System'),
+                onTap: () {
+                  settings.setThemeMode(ThemeMode.system);
+                  Navigator.pop(context);
+                },
+              ),
+              ListTile(
+                title: const Text('Theme: Light'),
+                onTap: () {
+                  settings.setThemeMode(ThemeMode.light);
+                  Navigator.pop(context);
+                },
+              ),
+              ListTile(
+                title: const Text('Theme: Dark'),
+                onTap: () {
+                  settings.setThemeMode(ThemeMode.dark);
+                  Navigator.pop(context);
+                },
+              ),
+              const Divider(),
+              ListTile(
+                title: const Text('Language: English'),
+                onTap: () {
+                  settings.setLocale(const Locale('en'));
+                  Navigator.pop(context);
+                },
+              ),
+              ListTile(
+                title: const Text('Language: Русский'),
+                onTap: () {
+                  settings.setLocale(const Locale('ru'));
+                  Navigator.pop(context);
+                },
+              ),
+              ListTile(
+                title: const Text('Language: System'),
+                onTap: () {
+                  settings.setLocale(null);
+                  Navigator.pop(context);
+                },
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final menuProvider = context.watch<MenuProvider>();
@@ -76,8 +140,14 @@ class _MenuScreenState extends State<MenuScreen> with TickerProviderStateMixin {
           title: Stack(
             alignment: Alignment.centerRight,
             children: [
-              const Center(child: Text('Yemekhane Menu', style: TextStyle(fontSize: 25, fontWeight: FontWeight.bold))),
-              GestureDetector(onTap: _handleLogButtonTap, child: Container(width: 50, height: 50, color: Colors.transparent)),
+              Center(child: Text(context.l10n.tr('appTitleMenu'), style: const TextStyle(fontSize: 25, fontWeight: FontWeight.bold))),
+              Row(mainAxisSize: MainAxisSize.min, children: [
+                IconButton(
+                  icon: const Icon(Icons.settings, color: Colors.black),
+                  onPressed: _showSettingsSheet,
+                ),
+                GestureDetector(onTap: _handleLogButtonTap, child: Container(width: 30, height: 30, color: Colors.transparent)),
+              ]),
             ],
           ),
         ),
@@ -114,7 +184,7 @@ class _MenuScreenState extends State<MenuScreen> with TickerProviderStateMixin {
                       if (menuProvider.isCached)
                         Padding(
                           padding: const EdgeInsets.only(top: 8, left: 12, right: 6),
-                          child: Text(menuProvider.message, style: const TextStyle(color: Colors.grey, fontWeight: FontWeight.w700)),
+                          child: Text(context.l10n.tr(menuProvider.messageKey), style: const TextStyle(color: Colors.grey, fontWeight: FontWeight.w700)),
                         ),
                       Expanded(
                         child: ListView.separated(

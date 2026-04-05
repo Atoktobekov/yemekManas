@@ -15,7 +15,7 @@ class DishRepositoryImpl implements DishRepository {
   Future<Either<Failure, DishDetailsEntity>> getDishDetails(String dishId) async {
     try {
       final details = await _remoteDataSource.getDishDetails(dishId);
-      return Right(details);
+      return Right(details.toEntity());
     } on FirebaseException catch (e) {
       return Left(ServerFailure(e.message ?? 'Unable to load dish details'));
     } catch (_) {
@@ -25,7 +25,7 @@ class DishRepositoryImpl implements DishRepository {
 
   @override
   Stream<List<CommentEntity>> watchComments(String dishId) {
-    return _remoteDataSource.watchComments(dishId);
+    return _remoteDataSource.watchComments(dishId).map((models) => models.map((m) => m.toEntity()).toList(growable: false));
   }
 
   @override

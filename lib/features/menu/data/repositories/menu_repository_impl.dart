@@ -33,7 +33,8 @@ class MenuRepositoryImpl implements MenuRepository {
   @override
   Future<Either<Failure, List<DailyMenuEntity>>> getMenus() async {
     try {
-      final menus = await _remoteDataSource.fetchMenus();
+      final responseModel = await _remoteDataSource.fetchMenus();
+      final menus = responseModel.toEntities();
       await _localDataSource.saveMenus(menus);
       _isDataFromCacheFlag = false;
       return Right(menus);

@@ -23,6 +23,8 @@ dependencies:
   provider: ^6.1.5+1
   flutter:
     sdk: flutter
+  flutter_localizations:
+    sdk: flutter
   cached_network_image: ^3.4.1
   cupertino_icons: ^1.0.8
   talker_dio_logger: ^5.1.5
