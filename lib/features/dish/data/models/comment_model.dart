@@ -1,11 +1,15 @@
 import 'package:ManasYemek/features/dish/domain/entities/comment_entity.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
-class CommentModel extends CommentEntity {
+class CommentModel {
+  final String id;
+  final String text;
+  final DateTime createdAt;
+
   const CommentModel({
-    required super.id,
-    required super.text,
-    required super.createdAt,
+    required this.id,
+    required this.text,
+    required this.createdAt,
   });
 
   factory CommentModel.fromFirestore({
@@ -18,6 +22,14 @@ class CommentModel extends CommentEntity {
       id: id,
       text: (json['text'] as String?)?.trim() ?? '',
       createdAt: timestamp?.toDate() ?? DateTime.fromMillisecondsSinceEpoch(0),
+    );
+  }
+
+  CommentEntity toEntity() {
+    return CommentEntity(
+      id: id,
+      text: text,
+      createdAt: createdAt,
     );
   }
 

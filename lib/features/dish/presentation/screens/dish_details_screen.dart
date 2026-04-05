@@ -1,3 +1,4 @@
+import 'package:ManasYemek/core/localization/app_localizations.dart';
 import 'package:ManasYemek/features/dish/domain/entities/comment_entity.dart';
 import 'package:ManasYemek/features/dish/presentation/providers/dish_provider.dart';
 import 'package:ManasYemek/features/dish/presentation/widgets/comment_input.dart';
@@ -150,13 +151,13 @@ class _DishDetailsViewState extends State<_DishDetailsView>
                             (provider.details?.description.isNotEmpty ??
                                 false)
                                 ? provider.details!.description
-                                : 'Описание пока отсутствует.',
+                                : context.l10n.tr('dishDescriptionMissing'),
                             style:
                             Theme.of(context).textTheme.bodyLarge,
                           ),
                           const SizedBox(height: 24),
                           Text(
-                            'Комментарии',
+                            context.l10n.tr('comments'),
                             style: Theme.of(context)
                                 .textTheme
                                 .titleLarge,
@@ -171,24 +172,18 @@ class _DishDetailsViewState extends State<_DishDetailsView>
                               }
 
                               if (snapshot.hasError) {
-                                return const Padding(
-                                  padding: EdgeInsets.symmetric(
-                                      vertical: 12),
-                                  child: Text(
-                                    'Не удалось загрузить комментарии.',
-                                  ),
+                                return Padding(
+                                  padding: const EdgeInsets.symmetric(vertical: 12),
+                                  child: Text(context.l10n.tr('commentsLoadFail')),
                                 );
                               }
 
                               final comments = snapshot.data ??
                                   const <CommentEntity>[];
                               if (comments.isEmpty) {
-                                return const Padding(
-                                  padding: EdgeInsets.symmetric(
-                                      vertical: 12),
-                                  child: Text(
-                                    'Пока нет комментариев. Будьте первым!',
-                                  ),
+                                return Padding(
+                                  padding: const EdgeInsets.symmetric(vertical: 12),
+                                  child: Text(context.l10n.tr('commentsEmpty')),
                                 );
                               }
 
@@ -219,7 +214,7 @@ class _DishDetailsViewState extends State<_DishDetailsView>
                           ScaffoldMessenger.of(context).showSnackBar(
                             SnackBar(
                                 content:
-                                Text(provider.errorMessage)),
+                                Text(context.l10n.tr(provider.errorMessage))),
                           );
                         }
                       },
@@ -257,14 +252,14 @@ class _DishDetailsViewState extends State<_DishDetailsView>
                   repeat: false,
                 ),
                 const SizedBox(height: 12),
-                const Text(
-                  'Спасибо!',
+                Text(
+                  context.l10n.tr('thanks'),
                   style: TextStyle(
                       fontSize: 20, fontWeight: FontWeight.w600),
                 ),
                 const SizedBox(height: 8),
-                const Text(
-                  'Ваша оценка принята 🙌',
+                Text(
+                  context.l10n.tr('ratingAccepted'),
                   textAlign: TextAlign.center,
                 ),
               ],

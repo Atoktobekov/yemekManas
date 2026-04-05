@@ -1,6 +1,7 @@
-import 'package:flutter/material.dart';
-import 'package:ManasYemek/features/menu/presentation/screens/menu_screen.dart';
+import 'package:ManasYemek/core/localization/app_localizations.dart';
 import 'package:ManasYemek/features/buffet/presentation/screens/buffet_screen.dart';
+import 'package:ManasYemek/features/menu/presentation/screens/menu_screen.dart';
+import 'package:flutter/material.dart';
 
 class RootPage extends StatefulWidget {
   const RootPage({super.key});
@@ -38,18 +39,18 @@ class _RootPageState extends State<RootPage> {
         children: _pages,
       ),
       bottomNavigationBar: BottomNavigationBar(
-        selectedItemColor: Color(0xFFFFBB8A),
-        backgroundColor: Colors.white,
+        selectedItemColor: const Color(0xFFFFBB8A),
+        backgroundColor: Theme.of(context).colorScheme.surface,
         currentIndex: _currentIndex,
         onTap: _onItemTapped,
-        items: const [
+        items: [
           BottomNavigationBarItem(
-            icon: Icon(Icons.restaurant),
-            label: 'Столовая',
+            icon: const Icon(Icons.restaurant),
+            label: context.l10n.tr('tabCanteen'),
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.local_cafe),
-            label: 'Буфет',
+            icon: const Icon(Icons.local_cafe),
+            label: context.l10n.tr('tabBuffet'),
           ),
         ],
       ),

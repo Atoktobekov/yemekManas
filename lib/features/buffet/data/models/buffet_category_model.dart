@@ -1,11 +1,15 @@
 import 'package:ManasYemek/features/buffet/data/models/buffet_menu_item_model.dart';
 import 'package:ManasYemek/features/buffet/domain/entities/buffet_category_entity.dart';
 
-class BuffetCategoryModel extends BuffetCategoryEntity {
+class BuffetCategoryModel {
+  final String id;
+  final String title;
+  final List<BuffetMenuItemModel> items;
+
   const BuffetCategoryModel({
-    required super.id,
-    required super.title,
-    required super.items,
+    required this.id,
+    required this.title,
+    required this.items,
   });
 
   factory BuffetCategoryModel.fromJson(Map<String, dynamic> json) {
@@ -15,6 +19,14 @@ class BuffetCategoryModel extends BuffetCategoryEntity {
       items: (json['items'] as List)
           .map((e) => BuffetMenuItemModel.fromJson(e as Map<String, dynamic>))
           .toList(),
+    );
+  }
+
+  BuffetCategoryEntity toEntity() {
+    return BuffetCategoryEntity(
+      id: id,
+      title: title,
+      items: items.map((item) => item.toEntity()).toList(growable: false),
     );
   }
 }
