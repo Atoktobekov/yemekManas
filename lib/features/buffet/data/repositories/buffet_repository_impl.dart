@@ -13,8 +13,8 @@ class BuffetRepositoryImpl implements BuffetRepository {
   @override
   Future<Either<Failure, BuffetMenuEntity>> getMenu() async {
     try {
-      final menu = await _dataSource.fetchMenu();
-      return Right(menu);
+      final menuModel = await _dataSource.fetchMenu();
+      return Right(menuModel.toEntity());
     } catch (e) {
       return Left(mapExceptionToFailure(e));
     }
