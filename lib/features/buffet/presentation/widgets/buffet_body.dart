@@ -1,6 +1,6 @@
-import 'package:flutter/material.dart';
 import 'package:ManasYemek/features/buffet/domain/entities/buffet_category_entity.dart';
 import 'package:ManasYemek/features/buffet/presentation/widgets/buffet_menu_item_card.dart';
+import 'package:flutter/material.dart';
 
 class BuffetBody extends StatelessWidget {
   final ScrollController scrollController;
@@ -33,11 +33,7 @@ class BuffetBody extends StatelessWidget {
                   padding: const EdgeInsets.symmetric(vertical: 12),
                   child: Text(
                     category.title,
-                    style: const TextStyle(
-                      fontSize: 22,
-                      fontWeight: FontWeight.w600,
-                      color: Color(0xFF1A1A1A),
-                    ),
+                    style: Theme.of(context).textTheme.headlineSmall,
                   ),
                 ),
                 GridView.builder(

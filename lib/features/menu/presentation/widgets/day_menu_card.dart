@@ -1,9 +1,8 @@
 import 'package:ManasYemek/features/dish/presentation/screens/dish_details_screen.dart';
-import 'package:flutter/material.dart';
-
 import 'package:ManasYemek/features/menu/domain/entities/daily_menu_entity.dart';
-
 import 'package:ManasYemek/features/menu/presentation/widgets/menu_item_card.dart';
+import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 
 class DayMenuCard extends StatelessWidget {
   final DailyMenuEntity dayMenu;
@@ -12,18 +11,20 @@ class DayMenuCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: const Color(0xFFFFF8EE),
+        color: Theme.of(context).cardTheme.color,
         borderRadius: BorderRadius.circular(16),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            getWeekdayFromDate(dayMenu.date),
-            style: const TextStyle(fontSize: 30, fontWeight: FontWeight.w500),
+            getWeekdayFromDate(dayMenu.date, locale: Localizations.localeOf(context).languageCode),
+            style: TextStyle(fontSize: 30, fontWeight: FontWeight.w500, color: colorScheme.onSurface),
           ),
           const SizedBox(height: 8),
           LayoutBuilder(
@@ -59,45 +60,21 @@ class DayMenuCard extends StatelessWidget {
             },
           ),
           const SizedBox(height: 20),
-         _DayKcalAndDate(dayMenu: dayMenu)
+          _DayKcalAndDate(dayMenu: dayMenu),
         ],
       ),
     );
   }
 }
 
-String getWeekdayFromDate(String input) {
+String getWeekdayFromDate(String input, {required String locale}) {
   final date = DateTime.parse(input);
-  const weekdays = [
-    'Monday',
-    'Tuesday',
-    'Wednesday',
-    'Thursday',
-    'Friday',
-    'Saturday',
-    'Sunday',
-  ];
-  return weekdays[date.weekday - 1];
+  return DateFormat.EEEE(locale).format(date);
 }
 
-String formatDateToMonthDay(String input) {
+String formatDateToMonthDay(String input, {required String locale}) {
   final date = DateTime.parse(input);
-  const months = [
-    'January',
-    'February',
-    'March',
-    'April',
-    'May',
-    'June',
-    'July',
-    'August',
-    'September',
-    'October',
-    'November',
-    'December',
-  ];
-
-  return '${months[date.month - 1]} ${date.day}';
+  return DateFormat.MMMMd(locale).format(date);
 }
 
 class _DayKcalAndDate extends StatelessWidget {
@@ -107,22 +84,16 @@ class _DayKcalAndDate extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final locale = Localizations.localeOf(context).languageCode;
     return Center(
       child: Container(
         constraints: const BoxConstraints(maxWidth: 285),
         width: double.infinity,
         padding: const EdgeInsets.symmetric(horizontal: 25, vertical: 10),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: Theme.of(context).colorScheme.surface,
           borderRadius: BorderRadius.circular(10),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withAlpha(4),
-              offset: const Offset(0, 6),
-              blurRadius: 5,
-              spreadRadius: 0,
-            ),
-          ],
+          border: Border.all(color: Theme.of(context).dividerColor.withOpacity(0.3)),
         ),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -132,7 +103,7 @@ class _DayKcalAndDate extends StatelessWidget {
               style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
             Text(
-              formatDateToMonthDay(dayMenu.date),
+              formatDateToMonthDay(dayMenu.date, locale: locale),
               style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w500),
             ),
           ],

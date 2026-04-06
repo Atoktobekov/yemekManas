@@ -118,7 +118,7 @@ class _BuffetScreenState extends State<BuffetScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFFFF8EE),
+      backgroundColor: Theme.of(context).colorScheme.surface,
       appBar: AppBar(
         title: Text(context.l10n.tr('buffetTitle'), style: const TextStyle(fontSize: 25, fontWeight: FontWeight.bold)),
       ),

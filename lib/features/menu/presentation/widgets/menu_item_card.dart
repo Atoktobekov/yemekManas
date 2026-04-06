@@ -1,7 +1,6 @@
+import 'package:ManasYemek/features/menu/domain/entities/menu_item_entity.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
-
-import 'package:ManasYemek/features/menu/domain/entities/menu_item_entity.dart';
 
 class MenuItemCard extends StatelessWidget {
   final MenuItemEntity item;
@@ -16,15 +15,9 @@ class MenuItemCard extends StatelessWidget {
       borderRadius: BorderRadius.circular(10),
       child: Container(
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: Theme.of(context).cardTheme.color,
           borderRadius: BorderRadius.circular(10),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withAlpha(10),
-              blurRadius: 10,
-              offset: const Offset(0, 4),
-            ),
-          ],
+          border: Border.all(color: Theme.of(context).dividerColor.withOpacity(0.2)),
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,

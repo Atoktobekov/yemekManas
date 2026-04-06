@@ -1,19 +1,19 @@
 import 'dart:async';
 
 import 'package:ManasYemek/core/localization/app_localizations.dart';
-import 'package:ManasYemek/features/menu/presentation/widgets/day_menu_skeleton.dart';
-import 'package:ManasYemek/shared/presentation/providers/settings_provider.dart';
-import 'package:ManasYemek/shared/presentation/screens/error_screen.dart';
-import 'package:flutter/material.dart';
-import 'package:get_it/get_it.dart';
-import 'package:provider/provider.dart';
-import 'package:talker_flutter/talker_flutter.dart';
-
 import 'package:ManasYemek/features/menu/presentation/providers/menu_provider.dart';
+import 'package:ManasYemek/features/menu/presentation/widgets/day_menu_skeleton.dart';
 import 'package:ManasYemek/features/menu/presentation/widgets/staggered_day_menu_card.dart';
 import 'package:ManasYemek/features/update/presentation/providers/update_provider.dart';
 import 'package:ManasYemek/features/update/presentation/widgets/update_download_progress.dart';
 import 'package:ManasYemek/features/update/presentation/widgets/update_ui_event_listener.dart';
+import 'package:ManasYemek/shared/presentation/providers/settings_provider.dart';
+import 'package:ManasYemek/shared/presentation/screens/error_screen.dart';
+import 'package:ManasYemek/shared/presentation/screens/settings_screen.dart';
+import 'package:flutter/material.dart';
+import 'package:get_it/get_it.dart';
+import 'package:provider/provider.dart';
+import 'package:talker_flutter/talker_flutter.dart';
 
 class MenuScreen extends StatefulWidget {
   const MenuScreen({super.key});
@@ -28,22 +28,41 @@ class _MenuScreenState extends State<MenuScreen> with TickerProviderStateMixin {
 
   int _logButtonTapCount = 0;
   Timer? _logButtonTimer;
+  String? _lastRequestedLocaleCode;
 
   @override
   void initState() {
     super.initState();
-    _fadeController = AnimationController(vsync: this, duration: const Duration(milliseconds: 600));
+    _fadeController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 600),
+    );
     _fadeAnimation = CurvedAnimation(parent: _fadeController, curve: Curves.easeInOut);
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final menuProvider = context.read<MenuProvider>();
       final updateProvider = context.read<UpdateProvider>();
+      final settings = context.read<SettingsProvider>();
+      final localeCode = settings.locale?.languageCode ?? Localizations.localeOf(context).languageCode;
 
+      _lastRequestedLocaleCode = localeCode;
       if (menuProvider.status == MenuStatus.initial) {
-        menuProvider.fetchMenu();
+        menuProvider.fetchMenu(localeCode: localeCode);
       }
       updateProvider.checkForUpdate();
     });
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final settings = context.read<SettingsProvider>();
+    final localeCode = settings.locale?.languageCode ?? Localizations.localeOf(context).languageCode;
+
+    if (_lastRequestedLocaleCode != null && _lastRequestedLocaleCode != localeCode) {
+      _lastRequestedLocaleCode = localeCode;
+      context.read<MenuProvider>().fetchMenu(localeCode: localeCode);
+    }
   }
 
   @override
@@ -68,65 +87,9 @@ class _MenuScreenState extends State<MenuScreen> with TickerProviderStateMixin {
     }
   }
 
-
-
-  void _showSettingsSheet() {
-    final settings = context.read<SettingsProvider>();
-    showModalBottomSheet<void>(
-      context: context,
-      builder: (context) => SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.all(16),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              ListTile(
-                title: const Text('Theme: System'),
-                onTap: () {
-                  settings.setThemeMode(ThemeMode.system);
-                  Navigator.pop(context);
-                },
-              ),
-              ListTile(
-                title: const Text('Theme: Light'),
-                onTap: () {
-                  settings.setThemeMode(ThemeMode.light);
-                  Navigator.pop(context);
-                },
-              ),
-              ListTile(
-                title: const Text('Theme: Dark'),
-                onTap: () {
-                  settings.setThemeMode(ThemeMode.dark);
-                  Navigator.pop(context);
-                },
-              ),
-              const Divider(),
-              ListTile(
-                title: const Text('Language: English'),
-                onTap: () {
-                  settings.setLocale(const Locale('en'));
-                  Navigator.pop(context);
-                },
-              ),
-              ListTile(
-                title: const Text('Language: Русский'),
-                onTap: () {
-                  settings.setLocale(const Locale('ru'));
-                  Navigator.pop(context);
-                },
-              ),
-              ListTile(
-                title: const Text('Language: System'),
-                onTap: () {
-                  settings.setLocale(null);
-                  Navigator.pop(context);
-                },
-              ),
-            ],
-          ),
-        ),
-      ),
+  Future<void> _openSettings() async {
+    await Navigator.of(context).push(
+      MaterialPageRoute(builder: (_) => const SettingsScreen()),
     );
   }
 
@@ -140,14 +103,25 @@ class _MenuScreenState extends State<MenuScreen> with TickerProviderStateMixin {
           title: Stack(
             alignment: Alignment.centerRight,
             children: [
-              Center(child: Text(context.l10n.tr('appTitleMenu'), style: const TextStyle(fontSize: 25, fontWeight: FontWeight.bold))),
-              Row(mainAxisSize: MainAxisSize.min, children: [
-                IconButton(
-                  icon: const Icon(Icons.settings, color: Colors.black),
-                  onPressed: _showSettingsSheet,
+              Center(
+                child: Text(
+                  context.l10n.tr('appTitleMenu'),
+                  style: const TextStyle(fontSize: 25, fontWeight: FontWeight.bold),
                 ),
-                GestureDetector(onTap: _handleLogButtonTap, child: Container(width: 30, height: 30, color: Colors.transparent)),
-              ]),
+              ),
+              Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  IconButton(
+                    icon: const Icon(Icons.settings),
+                    onPressed: _openSettings,
+                  ),
+                  GestureDetector(
+                    onTap: _handleLogButtonTap,
+                    child: Container(width: 28, height: 28, color: Colors.transparent),
+                  ),
+                ],
+              ),
             ],
           ),
         ),
@@ -167,24 +141,35 @@ class _MenuScreenState extends State<MenuScreen> with TickerProviderStateMixin {
                   itemCount: 3,
                   separatorBuilder: (_, _) => const Padding(
                     padding: EdgeInsets.symmetric(vertical: 16, horizontal: 32),
-                    child: Divider(thickness: 1, color: Colors.grey),
+                    child: Divider(thickness: 1),
                   ),
                   itemBuilder: (_, _) => const DayMenuSkeleton(),
                 );
               case MenuStatus.error:
-                return ErrorScreen(onRetry: menuProvider.fetchMenu);
+                return ErrorScreen(
+                  onRetry: () {
+                    final settings = context.read<SettingsProvider>();
+                    final localeCode = settings.locale?.languageCode ?? Localizations.localeOf(context).languageCode;
+                    menuProvider.fetchMenu(localeCode: localeCode);
+                  },
+                );
               case MenuStatus.loaded:
                 return RefreshIndicator(
                   onRefresh: () async {
                     _fadeController.reset();
-                    await menuProvider.fetchMenu();
+                    final settings = context.read<SettingsProvider>();
+                    final localeCode = settings.locale?.languageCode ?? Localizations.localeOf(context).languageCode;
+                    await menuProvider.fetchMenu(localeCode: localeCode);
                   },
                   child: Column(
                     children: [
                       if (menuProvider.isCached)
                         Padding(
                           padding: const EdgeInsets.only(top: 8, left: 12, right: 6),
-                          child: Text(context.l10n.tr(menuProvider.messageKey), style: const TextStyle(color: Colors.grey, fontWeight: FontWeight.w700)),
+                          child: Text(
+                            context.l10n.tr(menuProvider.messageKey),
+                            style: Theme.of(context).textTheme.bodyMedium,
+                          ),
                         ),
                       Expanded(
                         child: ListView.separated(
@@ -192,7 +177,7 @@ class _MenuScreenState extends State<MenuScreen> with TickerProviderStateMixin {
                           itemCount: menuProvider.menus.length,
                           separatorBuilder: (_, _) => const Padding(
                             padding: EdgeInsets.symmetric(vertical: 16, horizontal: 32),
-                            child: Divider(thickness: 1, color: Colors.grey),
+                            child: Divider(thickness: 1),
                           ),
                           itemBuilder: (_, index) => StaggeredDayMenuCard(
                             dayMenu: menuProvider.menus[index],

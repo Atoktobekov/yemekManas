@@ -1,3 +1,4 @@
+import 'package:ManasYemek/core/localization/app_localizations.dart';
 import 'package:flutter/material.dart';
 
 class CommentInput extends StatelessWidget {
@@ -16,8 +17,8 @@ class CommentInput extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
-      decoration: const BoxDecoration(
-        border: Border(top: BorderSide(color: Color(0xFFE5E5E5))),
+      decoration: BoxDecoration(
+        border: Border(top: BorderSide(color: Theme.of(context).dividerColor)),
       ),
       child: Row(
         children: [
@@ -28,9 +29,9 @@ class CommentInput extends StatelessWidget {
               maxLines: 3,
               textInputAction: TextInputAction.send,
               onSubmitted: (_) => onSend(),
-              decoration: const InputDecoration(
-                hintText: 'Написать комментарий...',
-                border: OutlineInputBorder(),
+              decoration: InputDecoration(
+                hintText: context.l10n.tr('commentPlaceholder'),
+                border: const OutlineInputBorder(),
                 isDense: true,
               ),
             ),
@@ -40,10 +41,10 @@ class CommentInput extends StatelessWidget {
             onPressed: isSubmitting ? null : onSend,
             icon: isSubmitting
                 ? const SizedBox(
-              width: 18,
-              height: 18,
-              child: CircularProgressIndicator(strokeWidth: 2),
-            )
+                    width: 18,
+                    height: 18,
+                    child: CircularProgressIndicator(strokeWidth: 2),
+                  )
                 : const Icon(Icons.send_rounded),
           ),
         ],

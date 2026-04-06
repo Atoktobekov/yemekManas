@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:ManasYemek/core/localization/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:provider/provider.dart';
@@ -51,9 +52,7 @@ class _UpdateUiEventListenerState extends State<UpdateUiEventListener> {
     } else if (event is ShowOpenSettingsDialog) {
       _showOpenSettingsDialog(context);
     } else if (event is ShowSnackbar) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text(event.message)));
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(context.l10n.tr(event.message))));
     }
 
     updateProvider.uiEvent.value = null;
@@ -63,25 +62,25 @@ class _UpdateUiEventListenerState extends State<UpdateUiEventListener> {
   Widget build(BuildContext context) => widget.child;
 
   void _showUpdateDialog(BuildContext context, UpdateInfoEntity updateInfo) {
+    final l10n = context.l10n;
     final updateProvider = context.read<UpdateProvider>();
     showDialog(
       barrierDismissible: !updateInfo.isForceUpdate,
       context: context,
       builder: (dialogContext) => AlertDialog(
-        title: const Text('Update is available'),
+        title: Text(l10n.tr('updateAvailable')),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('New version: ${updateInfo.latestVersion}'),
+            Text('${l10n.tr('newVersion')}: ${updateInfo.latestVersion}'),
             if (updateInfo.changelog.isNotEmpty) ...[
               const SizedBox(height: 12),
-              const Text(
-                "What's new:",
-                style: TextStyle(fontWeight: FontWeight.bold),
+              Text(
+                '${l10n.tr('whatsNew')}:',
+                style: const TextStyle(fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 4),
-              // if changelog is too long — wrap with scroll
               ConstrainedBox(
                 constraints: const BoxConstraints(maxHeight: 200),
                 child: SingleChildScrollView(
@@ -95,64 +94,35 @@ class _UpdateUiEventListenerState extends State<UpdateUiEventListener> {
           if (!updateInfo.isForceUpdate)
             TextButton(
               onPressed: () => Navigator.of(dialogContext).pop(),
-              child: const Text('Later'),
+              child: Text(l10n.tr('later')),
             ),
           TextButton(
             onPressed: () {
               Navigator.of(dialogContext).pop();
               updateProvider.requestPermissionAndStartDownload(updateInfo.updateUrl);
             },
-            child: const Text('Update'),
+            child: Text(l10n.tr('update')),
           ),
         ],
       ),
     );
   }
 
- /* void _showUpdateDialog(BuildContext context, UpdateInfoEntity updateInfo) {
-    final updateProvider = context.read<UpdateProvider>();
-    showDialog(
-      barrierDismissible: !updateInfo.isForceUpdate,
-      context: context,
-      builder: (dialogContext) => AlertDialog(
-        title: const Text('Update is available'),
-        content: Text('New version available: ${updateInfo.latestVersion}'),
-        actions: [
-          if (!updateInfo.isForceUpdate)
-            TextButton(
-              onPressed: () => Navigator.of(dialogContext).pop(),
-              child: const Text('Later'),
-            ),
-          TextButton(
-            onPressed: () {
-              Navigator.of(dialogContext).pop();
-              updateProvider.requestPermissionAndStartDownload(
-                updateInfo.updateUrl,
-              );
-            },
-            child: const Text('Update'),
-          ),
-        ],
-      ),
-    );
-  }*/
-
   Future<bool> _showPermissionExplanationDialog(BuildContext context) async {
+    final l10n = context.l10n;
     return await showDialog<bool>(
           context: context,
           builder: (_) => AlertDialog(
-            title: const Text('Installing permission'),
-            content: const Text(
-              'Need installing permission for installing new version of the app.',
-            ),
+            title: Text(l10n.tr('installPermissionTitle')),
+            content: Text(l10n.tr('installPermissionBody')),
             actions: [
               TextButton(
                 onPressed: () => Navigator.of(context).pop(false),
-                child: const Text('Cancel'),
+                child: Text(l10n.tr('cancel')),
               ),
               TextButton(
                 onPressed: () => Navigator.of(context).pop(true),
-                child: const Text('Access'),
+                child: Text(l10n.tr('allow')),
               ),
             ],
           ),
@@ -161,23 +131,20 @@ class _UpdateUiEventListenerState extends State<UpdateUiEventListener> {
   }
 
   void _showInstallDialog(BuildContext context, File apkFile) {
+    final l10n = context.l10n;
     final updateProvider = context.read<UpdateProvider>();
     showDialog(
       context: context,
       builder: (dialogContext) => AlertDialog(
-        title: const Text('Update is ready'),
-        content: const Text('New version downloaded. Click Install.'),
+        title: Text(l10n.tr('updateReady')),
+        content: Text(l10n.tr('updateReadyBody')),
         actions: [
-          /// I commented this line cause I think its not necessary
-          /// to give a user option to cancel update if he's already accepted
-          /// install request
-          //TextButton(onPressed: () => Navigator.of(dialogContext).pop(), child: const Text('Cancel')),
           TextButton(
             onPressed: () {
               Navigator.of(dialogContext).pop();
               updateProvider.installApk(apkFile);
             },
-            child: const Text('Install'),
+            child: Text(l10n.tr('install')),
           ),
         ],
       ),
@@ -185,24 +152,23 @@ class _UpdateUiEventListenerState extends State<UpdateUiEventListener> {
   }
 
   void _showOpenSettingsDialog(BuildContext context) {
+    final l10n = context.l10n;
     showDialog(
       context: context,
       builder: (_) => AlertDialog(
-        title: const Text('Open settings'),
-        content: const Text(
-          'Access denied. Please, enable app installing in system settings.',
-        ),
+        title: Text(l10n.tr('openSettings')),
+        content: Text(l10n.tr('openSettingsBody')),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(),
-            child: const Text('Cancel'),
+            child: Text(l10n.tr('cancel')),
           ),
           TextButton(
             onPressed: () {
               openAppSettings();
               Navigator.of(context).pop();
             },
-            child: const Text('Settings'),
+            child: Text(l10n.tr('openSettingsAction')),
           ),
         ],
       ),

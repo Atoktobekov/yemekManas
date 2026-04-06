@@ -39,8 +39,6 @@ class _RootPageState extends State<RootPage> {
         children: _pages,
       ),
       bottomNavigationBar: BottomNavigationBar(
-        selectedItemColor: const Color(0xFFFFBB8A),
-        backgroundColor: Theme.of(context).colorScheme.surface,
         currentIndex: _currentIndex,
         onTap: _onItemTapped,
         items: [

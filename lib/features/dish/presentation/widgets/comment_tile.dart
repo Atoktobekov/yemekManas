@@ -9,15 +9,15 @@ class CommentTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final formattedDate =
-    DateFormat('dd.MM.yyyy HH:mm').format(comment.createdAt.toLocal());
+    final locale = Localizations.localeOf(context).languageCode;
+    final formattedDate = DateFormat('dd.MM.yyyy HH:mm', locale).format(comment.createdAt.toLocal());
 
     return Container(
       width: double.infinity,
       margin: const EdgeInsets.only(bottom: 8),
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: const Color(0xFFFFF8EE),
+        color: Theme.of(context).cardTheme.color,
         borderRadius: BorderRadius.circular(12),
       ),
       child: Column(
@@ -27,10 +27,9 @@ class CommentTile extends StatelessWidget {
           const SizedBox(height: 6),
           Text(
             formattedDate,
-            style: Theme.of(context)
-                .textTheme
-                .bodySmall
-                ?.copyWith(color: Colors.black54),
+            style: Theme.of(context).textTheme.bodySmall?.copyWith(
+              color: Theme.of(context).colorScheme.onSurface.withOpacity(0.65),
+            ),
           ),
         ],
       ),

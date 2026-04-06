@@ -8,7 +8,7 @@ class GetMenuUseCase {
 
   const GetMenuUseCase(this._menuRepository);
 
-  Future<Either<Failure, List<DailyMenuEntity>>> call() {
-    return _menuRepository.getMenus();
+  Future<Either<Failure, List<DailyMenuEntity>>> call({required String localeCode}) {
+    return _menuRepository.getMenus(localeCode: localeCode);
   }
 }

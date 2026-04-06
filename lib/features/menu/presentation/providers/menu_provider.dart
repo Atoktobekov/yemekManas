@@ -39,12 +39,12 @@ class MenuProvider extends ChangeNotifier {
   String get messageKey => _messageKey;
   bool get isCached => _menuRepository.isDataFromCache();
 
-  Future<void> fetchMenu() async {
+  Future<void> fetchMenu({required String localeCode}) async {
     _status = MenuStatus.loading;
     _messageKey = '';
     notifyListeners();
 
-    final result = await _getMenuUseCase();
+    final result = await _getMenuUseCase(localeCode: localeCode);
 
     result.fold((failure) {
       _messageKey = _mapFailureToMessageKey(failure);

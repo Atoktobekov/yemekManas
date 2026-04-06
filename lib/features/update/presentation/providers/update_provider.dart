@@ -63,7 +63,7 @@ class UpdateProvider extends ChangeNotifier {
     } else if (status.isPermanentlyDenied) {
       uiEvent.value = ShowOpenSettingsDialog();
     } else {
-      uiEvent.value = ShowSnackbar('Need permission to continue.');
+      uiEvent.value = ShowSnackbar('installPermissionBody');
     }
   }
 

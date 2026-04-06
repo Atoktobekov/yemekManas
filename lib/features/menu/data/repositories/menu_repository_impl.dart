@@ -31,10 +31,10 @@ class MenuRepositoryImpl implements MenuRepository {
         _cacheConfig = cacheConfig;
 
   @override
-  Future<Either<Failure, List<DailyMenuEntity>>> getMenus() async {
+  Future<Either<Failure, List<DailyMenuEntity>>> getMenus({required String localeCode}) async {
     try {
       final responseModel = await _remoteDataSource.fetchMenus();
-      final menus = responseModel.toEntities();
+      final menus = responseModel.toEntities(locale: localeCode);
       await _localDataSource.saveMenus(menus);
       _isDataFromCacheFlag = false;
       return Right(menus);

@@ -1,5 +1,5 @@
-import 'package:flutter/material.dart';
 import 'package:ManasYemek/features/buffet/domain/entities/buffet_category_entity.dart';
+import 'package:flutter/material.dart';
 
 class BuffetHeader extends StatelessWidget {
   final List<BuffetCategoryEntity> categories;
@@ -19,8 +19,10 @@ class BuffetHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+
     return Container(
-      color: Colors.white,
+      color: colorScheme.surface,
       child: Column(
         children: [
           const SizedBox(height: 8),
@@ -43,9 +45,7 @@ class BuffetHeader extends StatelessWidget {
                     decoration: BoxDecoration(
                       border: Border(
                         bottom: BorderSide(
-                          color: isActive
-                              ? const Color(0xFF111827)
-                              : Colors.transparent,
+                          color: isActive ? colorScheme.primary : Colors.transparent,
                           width: 2,
                         ),
                       ),
@@ -54,11 +54,8 @@ class BuffetHeader extends StatelessWidget {
                       cat.title,
                       style: TextStyle(
                         fontSize: 13,
-                        fontWeight:
-                        isActive ? FontWeight.w600 : FontWeight.w400,
-                        color: isActive
-                            ? const Color(0xFF111827)
-                            : const Color(0xFF9CA3AF),
+                        fontWeight: isActive ? FontWeight.w600 : FontWeight.w400,
+                        color: isActive ? colorScheme.onSurface : colorScheme.onSurface.withOpacity(0.6),
                       ),
                     ),
                   ),
@@ -66,7 +63,7 @@ class BuffetHeader extends StatelessWidget {
               },
             ),
           ),
-          const Divider(height: 1, thickness: 1, color: Color(0xFFF3F4F6)),
+          Divider(height: 1, thickness: 1, color: colorScheme.outline.withOpacity(0.2)),
         ],
       ),
     );

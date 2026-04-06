@@ -29,18 +29,15 @@ class MenuResponseRemoteModel {
     );
   }
 
-  List<DailyMenuEntity> toEntities({String locale = 'tr'}) {
-    /// foods → entity
+  List<DailyMenuEntity> toEntities({required String locale}) {
     final foodEntities = foods
-        .map((food) => food.toEntity(locale: locale))
+        .map((food) => food.toEntity(localeCode: locale))
         .toList();
 
-    /// fast lookup map
     final foodMap = {
       for (final food in foodEntities) food.id: food,
     };
 
-    /// menus → entity
     return menus
         .map((menu) => menu.toEntity(foodMap))
         .toList();

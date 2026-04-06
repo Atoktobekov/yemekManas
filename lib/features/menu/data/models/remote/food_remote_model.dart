@@ -1,6 +1,5 @@
 import 'package:ManasYemek/features/menu/domain/entities/menu_item_entity.dart';
 
-
 class FoodRemoteModel {
   final String id;
   final Map<String, dynamic> name;
@@ -26,10 +25,10 @@ class FoodRemoteModel {
     );
   }
 
-  MenuItemEntity toEntity({String locale = 'tr'}) {
+  MenuItemEntity toEntity({required String localeCode}) {
     return MenuItemEntity(
       id: id,
-      name: (name[locale] ?? name['en'] ?? name['tr'] ?? '').toString(),
+      name: (name[localeCode] ?? name['en'] ?? name['tr'] ?? name['ru'] ?? '').toString(),
       calories: calories,
       thumbUrl: thumbUrl,
       fullPhotoUrl: fullPhotoUrl,
