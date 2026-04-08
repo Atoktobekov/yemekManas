@@ -26,22 +26,22 @@ class ErrorScreen extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 12),
-            const Text(
+             Text(
               'Упс, страница пока недоступна',
               textAlign: TextAlign.center,
               style: TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.w700,
-                color: Color(0xFF1A1A1A),
+                color: Theme.of(context).colorScheme.onSurface,
               ),
             ),
             const SizedBox(height: 10),
-            const Text(
+            Text(
               'Что-то пошло не так. Проверьте интернет и попробуйте ещё раз.',
               textAlign: TextAlign.center,
               style: TextStyle(
                 fontSize: 14,
-                color: Color(0xFF6B7280),
+                color: Theme.of(context).colorScheme.onSurface,
                 height: 1.45,
               ),
             ),
@@ -51,16 +51,17 @@ class ErrorScreen extends StatelessWidget {
               width: double.infinity,
               child: ElevatedButton.icon(
                 onPressed: onRetry,
-                icon: const Icon(Icons.refresh_rounded, size: 18),
-                label: const Text(
+                icon: Icon(Icons.refresh_rounded, size: 18, color: Theme.of(context).colorScheme.onSecondary),
+                label: Text(
                   'Попробовать снова',
                   style: TextStyle(
                     fontSize: 15,
                     fontWeight: FontWeight.w600,
+                      color: Theme.of(context).colorScheme.onSecondary
                   ),
                 ),
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF1A1A1A),
+                  backgroundColor: Theme.of(context).colorScheme.onSurface,
                   foregroundColor: Colors.white,
                   padding: const EdgeInsets.symmetric(vertical: 14),
                   elevation: 0,

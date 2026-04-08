@@ -74,20 +74,30 @@ class _MenuScreenState extends State<MenuScreen> with TickerProviderStateMixin {
     return UpdateUiEventListener(
       child: Scaffold(
         appBar: AppBar(
-          title: Stack(
-            alignment: Alignment.centerRight,
-            children: [
-              const Center(child: Text('Yemekhane Menu', style: TextStyle(fontSize: 25, fontWeight: FontWeight.bold))),
-              GestureDetector(onTap: _handleLogButtonTap, child: Container(width: 50, height: 50, color: Colors.transparent)),
-            ],
+          centerTitle: true,
+
+          leading: GestureDetector(
+            onTap: _handleLogButtonTap,
+            child: Container(
+              width: 50,
+              height: 50,
+              color: Colors.transparent,
+            ),
           ),
+
+          title: const Text(
+            'Yemekhane Menu',
+            style: TextStyle(
+              fontSize: 25,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+
           actions: [
             Consumer<ThemeModeController>(
               builder: (context, themeController, _) => IconButton(
                 onPressed: themeController.toggleThemeMode,
-                icon: Icon(
-                  themeController.isDarkMode ? Icons.light_mode : Icons.dark_mode,
-                ),
+                icon: Icon(themeController.themeIcon),
               ),
             ),
           ],

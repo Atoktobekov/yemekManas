@@ -14,14 +14,23 @@ class BuffetMenuItemCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colors = theme.colorScheme;
+    final isDark = theme.brightness == Brightness.dark;
+
     return Container(
       decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(10),
-        boxShadow: [
+        color: colors.surfaceContainer,
+        borderRadius: BorderRadius.circular(18),
+        border: Border.all(
+          color: theme.dividerColor.withValues(alpha: isDark ? 0.26 : 0.08),
+        ),
+        boxShadow: isDark
+            ? []
+            : [
           BoxShadow(
-            color: Colors.black.withAlpha(10),
-            blurRadius: 10,
+            color: Colors.black.withValues(alpha: 0.04),
+            blurRadius: 12,
             offset: const Offset(0, 4),
           ),
         ],
@@ -29,49 +38,50 @@ class BuffetMenuItemCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          /// fixed height to avoid overflow
           SizedBox(
             height: 128,
+            width: double.infinity,
             child: ClipRRect(
               borderRadius: const BorderRadius.vertical(
-                top: Radius.circular(10),
+                top: Radius.circular(18),
               ),
               child: CachedNetworkImage(
                 imageUrl: item.photoUrl,
                 fit: BoxFit.cover,
-                width: double.infinity,
                 placeholder: (_, __) => const Center(
                   child: CircularProgressIndicator(strokeWidth: 2),
                 ),
-                errorWidget: (_, __, ___) => const Center(
-                  child: Icon(Icons.broken_image, color: Colors.grey),
+                errorWidget: (_, __, ___) => Center(
+                  child: Icon(
+                    Icons.broken_image_outlined,
+                    color: colors.onSurfaceVariant,
+                  ),
                 ),
               ),
             ),
           ),
           Expanded(
             child: Padding(
-              padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 9),
+              padding: const EdgeInsets.fromLTRB(10, 10, 10, 10),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisAlignment: MainAxisAlignment.spaceAround,
                 children: [
                   Text(
                     item.name,
-                    style: const TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.bold,
-                      color: Color(0xFF1A1A1A),
-                    ),
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
+                    style: theme.textTheme.titleSmall?.copyWith(
+                      fontWeight: FontWeight.w700,
+                      color: colors.onSurface,
+                      height: 1.2,
+                    ),
                   ),
+                  const Spacer(),
                   Text(
                     '${_formatPrice(item.price)} $currency',
-                    style: const TextStyle(
-                      fontSize: 15,
-                      fontWeight: FontWeight.w600,
-                      color: Color(0xFF4CAF50),
+                    style: theme.textTheme.titleSmall?.copyWith(
+                      fontWeight: FontWeight.w700,
+                      color: Colors.green,
                     ),
                   ),
                 ],
@@ -83,6 +93,9 @@ class BuffetMenuItemCard extends StatelessWidget {
     );
   }
 
-  String _formatPrice(double price) =>
-      price % 1 == 0 ? price.toInt().toString() : price.toStringAsFixed(2);
+  String _formatPrice(double price) {
+    return price % 1 == 0
+        ? price.toInt().toString()
+        : price.toStringAsFixed(2);
+  }
 }

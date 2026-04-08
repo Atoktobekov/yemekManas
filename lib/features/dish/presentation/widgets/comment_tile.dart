@@ -17,7 +17,7 @@ class CommentTile extends StatelessWidget {
       margin: const EdgeInsets.only(bottom: 8),
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: const Color(0xFFFFF8EE),
+        color: Theme.of(context).colorScheme.surface,
         borderRadius: BorderRadius.circular(12),
       ),
       child: Column(
@@ -30,7 +30,7 @@ class CommentTile extends StatelessWidget {
             style: Theme.of(context)
                 .textTheme
                 .bodySmall
-                ?.copyWith(color: Colors.black54),
+                ?.copyWith(color: Theme.of(context).colorScheme.onSurface),
           ),
         ],
       ),

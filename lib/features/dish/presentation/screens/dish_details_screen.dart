@@ -98,7 +98,7 @@ class _DishDetailsViewState extends State<_DishDetailsView>
         return Scaffold(
           appBar: AppBar(
             title: Text(widget.dish.name),
-            leading: const BackButton(color: Colors.black),
+            leading: const BackButton(),
           ),
           body: SafeArea(
             child: isInitialLoading
