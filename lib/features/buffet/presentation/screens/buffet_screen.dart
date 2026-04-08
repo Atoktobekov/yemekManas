@@ -6,6 +6,7 @@ import 'package:ManasYemek/features/buffet/domain/entities/buffet_menu_entity.da
 import 'package:ManasYemek/features/buffet/presentation/providers/buffet_provider.dart';
 import 'package:ManasYemek/features/buffet/presentation/widgets/buffet_header.dart';
 import 'package:ManasYemek/features/buffet/presentation/widgets/buffet_body.dart';
+import 'package:ManasYemek/core/theme/theme_mode_controller.dart';
 
 class BuffetScreen extends StatefulWidget {
   const BuffetScreen({super.key});
@@ -117,9 +118,18 @@ class _BuffetScreenState extends State<BuffetScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFFFF8EE),
       appBar: AppBar(
         title: const Text('Buffet Menu', style: TextStyle(fontSize: 25, fontWeight: FontWeight.bold)),
+        actions: [
+          Consumer<ThemeModeController>(
+            builder: (context, themeController, _) => IconButton(
+              onPressed: themeController.toggleThemeMode,
+              icon: Icon(
+                themeController.isDarkMode ? Icons.light_mode : Icons.dark_mode,
+              ),
+            ),
+          ),
+        ],
       ),
       body: SafeArea(
         child: Consumer<BuffetProvider>(
