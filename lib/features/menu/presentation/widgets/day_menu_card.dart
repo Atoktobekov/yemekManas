@@ -12,20 +12,39 @@ class DayMenuCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colors = theme.colorScheme;
+
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: const Color(0xFFFFF8EE),
+        color: Theme.of(context).cardColor,
         borderRadius: BorderRadius.circular(16),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            getWeekdayFromDate(dayMenu.date),
-            style: const TextStyle(fontSize: 30, fontWeight: FontWeight.w500),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                getWeekdayFromDate(dayMenu.date),
+                style: const TextStyle(
+                  fontSize: 26,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+              Text(
+                formatDateToMonthDay(dayMenu.date),
+                style: TextStyle(
+                  fontSize: 22,
+                  fontWeight: FontWeight.w500,
+                  color: colors.onSurfaceVariant,
+                ),
+              ),
+            ],
           ),
-          const SizedBox(height: 8),
+          const SizedBox(height: 12),
           LayoutBuilder(
             builder: (context, constraints) {
               final itemWidth = (constraints.maxWidth - 16 - 32) / 2;
@@ -59,7 +78,7 @@ class DayMenuCard extends StatelessWidget {
             },
           ),
           const SizedBox(height: 20),
-         _DayKcalAndDate(dayMenu: dayMenu)
+          _DayKcal(dayMenu: dayMenu),
         ],
       ),
     );
@@ -69,13 +88,13 @@ class DayMenuCard extends StatelessWidget {
 String getWeekdayFromDate(String input) {
   final date = DateTime.parse(input);
   const weekdays = [
-    'Monday',
-    'Tuesday',
-    'Wednesday',
-    'Thursday',
-    'Friday',
-    'Saturday',
-    'Sunday',
+    'Понедельник',
+    'Вторник',
+    'Среда',
+    'Четверг',
+    'Пятница',
+    'Суббота',
+    'Воскресенье',
   ];
   return weekdays[date.weekday - 1];
 }
@@ -83,57 +102,62 @@ String getWeekdayFromDate(String input) {
 String formatDateToMonthDay(String input) {
   final date = DateTime.parse(input);
   const months = [
-    'January',
-    'February',
-    'March',
-    'April',
-    'May',
-    'June',
-    'July',
-    'August',
-    'September',
-    'October',
-    'November',
-    'December',
+    'Январь',
+    'Февраль',
+    'Март',
+    'Апрель',
+    'Май',
+    'Июнь',
+    'Июль',
+    'Август',
+    'Сентябрь',
+    'Октябрь',
+    'Ноябрь',
+    'Декабрь',
   ];
 
   return '${months[date.month - 1]} ${date.day}';
 }
 
-class _DayKcalAndDate extends StatelessWidget {
+class _DayKcal extends StatelessWidget {
   final DailyMenuEntity dayMenu;
 
-  const _DayKcalAndDate({required this.dayMenu});
+  const _DayKcal({required this.dayMenu});
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colors = theme.colorScheme;
+    final isDark = theme.brightness == Brightness.dark;
+
     return Center(
       child: Container(
-        constraints: const BoxConstraints(maxWidth: 285),
+        constraints: const BoxConstraints(maxWidth: 320),
         width: double.infinity,
-        padding: const EdgeInsets.symmetric(horizontal: 25, vertical: 10),
+        padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 14),
         decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(10),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withAlpha(4),
-              offset: const Offset(0, 6),
-              blurRadius: 5,
-              spreadRadius: 0,
-            ),
-          ],
+          color: colors.surfaceContainer,
+          borderRadius: BorderRadius.circular(18),
+          border: Border.all(
+            color: theme.dividerColor.withValues(alpha: isDark ? 0.28 : 0.08),
+          ),
         ),
         child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Text(
-              '${dayMenu.totalCalories} kcal',
-              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              "Всего: ",
+              style: theme.textTheme.titleMedium?.copyWith(
+                fontWeight: FontWeight.w700,
+                color: colors.onSurface,
+              ),
             ),
             Text(
-              formatDateToMonthDay(dayMenu.date),
-              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w500),
+              '${dayMenu.totalCalories} Ккал',
+              style: theme.textTheme.titleMedium?.copyWith(
+                fontWeight: FontWeight.w700,
+                color: colors.onSurface,
+              ),
             ),
           ],
         ),

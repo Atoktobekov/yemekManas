@@ -12,6 +12,7 @@ import 'package:ManasYemek/features/menu/presentation/widgets/staggered_day_menu
 import 'package:ManasYemek/features/update/presentation/providers/update_provider.dart';
 import 'package:ManasYemek/features/update/presentation/widgets/update_download_progress.dart';
 import 'package:ManasYemek/features/update/presentation/widgets/update_ui_event_listener.dart';
+import 'package:ManasYemek/core/theme/theme_mode_controller.dart';
 
 class MenuScreen extends StatefulWidget {
   const MenuScreen({super.key});
@@ -73,13 +74,33 @@ class _MenuScreenState extends State<MenuScreen> with TickerProviderStateMixin {
     return UpdateUiEventListener(
       child: Scaffold(
         appBar: AppBar(
-          title: Stack(
-            alignment: Alignment.centerRight,
-            children: [
-              const Center(child: Text('Yemekhane Menu', style: TextStyle(fontSize: 25, fontWeight: FontWeight.bold))),
-              GestureDetector(onTap: _handleLogButtonTap, child: Container(width: 50, height: 50, color: Colors.transparent)),
-            ],
+          centerTitle: true,
+
+          leading: GestureDetector(
+            onTap: _handleLogButtonTap,
+            child: Container(
+              width: 50,
+              height: 50,
+              color: Colors.transparent,
+            ),
           ),
+
+          title: const Text(
+            'Yemekhane Menu',
+            style: TextStyle(
+              fontSize: 25,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+
+          actions: [
+            Consumer<ThemeModeController>(
+              builder: (context, themeController, _) => IconButton(
+                onPressed: themeController.toggleThemeMode,
+                icon: Icon(themeController.themeIcon),
+              ),
+            ),
+          ],
         ),
         body: Builder(
           builder: (_) {

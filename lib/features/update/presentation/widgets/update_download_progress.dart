@@ -35,7 +35,7 @@ class UpdateDownloadProgress extends StatelessWidget {
                   padding: const EdgeInsets.only(bottom: 12, top: 7),
                   child: Center(
                     child: Text(
-                      "Downloading new version... ${(value * 100).toStringAsFixed(0)}%",
+                      "Скачиваем новую версию... ${(value * 100).toStringAsFixed(0)}%",
                       style: const TextStyle(
                         fontWeight: FontWeight.w400,
                         fontSize: 16,

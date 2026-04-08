@@ -1,13 +1,20 @@
 import 'package:flutter/material.dart';
 
 class MenuItemSkeleton extends StatelessWidget {
-  const MenuItemSkeleton({super.key});
+  final Color baseColor;
+
+  const MenuItemSkeleton({
+    super.key,
+    required this.baseColor,
+  });
 
   @override
   Widget build(BuildContext context) {
+    final containerColor = Theme.of(context).colorScheme.surfaceContainer;
+
     return Container(
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: containerColor,
         borderRadius: BorderRadius.circular(16),
       ),
       child: Column(
@@ -15,7 +22,7 @@ class MenuItemSkeleton extends StatelessWidget {
           Container(
             height: 105,
             decoration: BoxDecoration(
-              color: Colors.grey.shade300,
+              color: baseColor,
               borderRadius: const BorderRadius.vertical(
                 top: Radius.circular(10),
               ),
@@ -30,10 +37,10 @@ class MenuItemSkeleton extends StatelessWidget {
                   Container(
                     height: 16,
                     width: double.infinity,
-                    color: Colors.grey.shade300,
+                    color: baseColor,
                   ),
                   const SizedBox(height: 8),
-                  Container(height: 14, width: 70, color: Colors.grey.shade300),
+                  Container(height: 14, width: 70, color: baseColor),
                 ],
               ),
             ),

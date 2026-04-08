@@ -63,7 +63,7 @@ class UpdateProvider extends ChangeNotifier {
     } else if (status.isPermanentlyDenied) {
       uiEvent.value = ShowOpenSettingsDialog();
     } else {
-      uiEvent.value = ShowSnackbar('Need permission to continue.');
+      uiEvent.value = ShowSnackbar('Нужно разрешение для продолжения.');
     }
   }
 
@@ -81,7 +81,7 @@ class UpdateProvider extends ChangeNotifier {
       uiEvent.value = ShowSnackbar(e.message);
     } catch (e, st) {
       _talker.handle(e, st, '[UpdateProvider] error while downloading');
-      uiEvent.value = ShowSnackbar('Update error: $e');
+      uiEvent.value = ShowSnackbar('Ошибка обновления: $e');
     }
   }
 

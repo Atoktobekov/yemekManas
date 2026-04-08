@@ -7,32 +7,38 @@ class DayMenuSkeleton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+
+    final baseColor = isDark ? Colors.grey.shade800 : Colors.grey.shade300;
+    final highlightColor = isDark ? Colors.grey.shade700 : Colors.grey.shade100;
+    final containerColor = theme.colorScheme.surfaceContainer;
+
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: const Color(0xFFFFF8EE),
+        color: containerColor,
         borderRadius: BorderRadius.circular(16),
       ),
       child: Shimmer.fromColors(
-        baseColor: Colors.grey.shade300,
-        highlightColor: Colors.grey.shade100,
+        baseColor: baseColor,
+        highlightColor: highlightColor,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Container(
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(10),
-                color: Colors.grey.shade300,
+                color: baseColor,
               ),
               height: 32,
               width: 180,
             ),
             const SizedBox(height: 16),
-
             GridView.builder(
               shrinkWrap: true,
               physics: const NeverScrollableScrollPhysics(),
-              padding: EdgeInsets.zero, // Добавлено
+              padding: EdgeInsets.zero,
               itemCount: 4,
               gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                 crossAxisCount: 2,
@@ -40,17 +46,15 @@ class DayMenuSkeleton extends StatelessWidget {
                 mainAxisSpacing: 16,
                 childAspectRatio: 0.85,
               ),
-              itemBuilder: (_, __) => const MenuItemSkeleton(),
+              itemBuilder: (_, __) => MenuItemSkeleton(baseColor: baseColor),
             ),
-
             const SizedBox(height: 20),
-
             Center(
               child: Container(
                 width: 285,
                 height: 45,
                 decoration: BoxDecoration(
-                  color: Colors.grey.shade300,
+                  color: baseColor,
                   borderRadius: BorderRadius.circular(10),
                 ),
               ),

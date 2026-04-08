@@ -68,16 +68,16 @@ class _UpdateUiEventListenerState extends State<UpdateUiEventListener> {
       barrierDismissible: !updateInfo.isForceUpdate,
       context: context,
       builder: (dialogContext) => AlertDialog(
-        title: const Text('Update is available'),
+        title: const Text('Доступно обновление'),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('New version: ${updateInfo.latestVersion}'),
+            Text('Новая версия: ${updateInfo.latestVersion}'),
             if (updateInfo.changelog.isNotEmpty) ...[
               const SizedBox(height: 12),
               const Text(
-                "What's new:",
+                "Что нового:",
                 style: TextStyle(fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 4),
@@ -95,14 +95,14 @@ class _UpdateUiEventListenerState extends State<UpdateUiEventListener> {
           if (!updateInfo.isForceUpdate)
             TextButton(
               onPressed: () => Navigator.of(dialogContext).pop(),
-              child: const Text('Later'),
+              child: const Text('Позже'),
             ),
           TextButton(
             onPressed: () {
               Navigator.of(dialogContext).pop();
               updateProvider.requestPermissionAndStartDownload(updateInfo.updateUrl);
             },
-            child: const Text('Update'),
+            child: const Text('Обновить'),
           ),
         ],
       ),
@@ -141,18 +141,18 @@ class _UpdateUiEventListenerState extends State<UpdateUiEventListener> {
     return await showDialog<bool>(
           context: context,
           builder: (_) => AlertDialog(
-            title: const Text('Installing permission'),
+            title: const Text('Разрешение на установку'),
             content: const Text(
-              'Need installing permission for installing new version of the app.',
+              'Необходимо разрешение для установки новой версии.',
             ),
             actions: [
               TextButton(
                 onPressed: () => Navigator.of(context).pop(false),
-                child: const Text('Cancel'),
+                child: const Text('Отмена'),
               ),
               TextButton(
                 onPressed: () => Navigator.of(context).pop(true),
-                child: const Text('Access'),
+                child: const Text('Разрешить'),
               ),
             ],
           ),
@@ -165,8 +165,8 @@ class _UpdateUiEventListenerState extends State<UpdateUiEventListener> {
     showDialog(
       context: context,
       builder: (dialogContext) => AlertDialog(
-        title: const Text('Update is ready'),
-        content: const Text('New version downloaded. Click Install.'),
+        title: const Text('Обновление готово'),
+        content: const Text('Новая версия загружена. Нажмите установить.'),
         actions: [
           /// I commented this line cause I think its not necessary
           /// to give a user option to cancel update if he's already accepted
@@ -177,7 +177,7 @@ class _UpdateUiEventListenerState extends State<UpdateUiEventListener> {
               Navigator.of(dialogContext).pop();
               updateProvider.installApk(apkFile);
             },
-            child: const Text('Install'),
+            child: const Text('Установить'),
           ),
         ],
       ),
@@ -188,21 +188,21 @@ class _UpdateUiEventListenerState extends State<UpdateUiEventListener> {
     showDialog(
       context: context,
       builder: (_) => AlertDialog(
-        title: const Text('Open settings'),
+        title: const Text('Открыть настройки'),
         content: const Text(
-          'Access denied. Please, enable app installing in system settings.',
+          'Разрешение отклонено. Пожалуйста, включите установку из этого источника в настройках.',
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(),
-            child: const Text('Cancel'),
+            child: const Text('Отмена'),
           ),
           TextButton(
             onPressed: () {
               openAppSettings();
               Navigator.of(context).pop();
             },
-            child: const Text('Settings'),
+            child: const Text('Настройки'),
           ),
         ],
       ),

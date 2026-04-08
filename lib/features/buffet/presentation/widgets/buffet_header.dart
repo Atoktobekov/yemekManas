@@ -19,8 +19,14 @@ class BuffetHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colors = theme.colorScheme;
+    final isDark = theme.brightness == Brightness.dark;
+
     return Container(
-      color: Colors.white,
+      color: isDark
+          ? const Color(0xFF141414)   // appBarTheme.backgroundColor из тёмной темы
+          : Colors.white,
       child: Column(
         children: [
           const SizedBox(height: 8),
@@ -44,7 +50,7 @@ class BuffetHeader extends StatelessWidget {
                       border: Border(
                         bottom: BorderSide(
                           color: isActive
-                              ? const Color(0xFF111827)
+                              ? colors.primary
                               : Colors.transparent,
                           width: 2,
                         ),
@@ -57,8 +63,8 @@ class BuffetHeader extends StatelessWidget {
                         fontWeight:
                         isActive ? FontWeight.w600 : FontWeight.w400,
                         color: isActive
-                            ? const Color(0xFF111827)
-                            : const Color(0xFF9CA3AF),
+                            ? colors.onSurface
+                            : colors.onSurfaceVariant,
                       ),
                     ),
                   ),
@@ -66,7 +72,11 @@ class BuffetHeader extends StatelessWidget {
               },
             ),
           ),
-          const Divider(height: 1, thickness: 1, color: Color(0xFFF3F4F6)),
+          Divider(
+            height: 1,
+            thickness: 1,
+            color: theme.dividerColor,
+          ),
         ],
       ),
     );

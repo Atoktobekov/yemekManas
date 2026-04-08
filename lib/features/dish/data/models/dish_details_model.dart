@@ -1,11 +1,16 @@
 import 'package:ManasYemek/features/dish/domain/entities/dish_details_entity.dart';
 
-class DishDetailsModel extends DishDetailsEntity {
+class DishDetailsModel {
+  final String id;
+  final String description;
+  final double rating;
+  final int ratingsCount;
+
   const DishDetailsModel({
-    required super.id,
-    required super.description,
-    required super.rating,
-    required super.ratingsCount,
+    required this.id,
+    required this.description,
+    required this.rating,
+    required this.ratingsCount,
   });
 
   factory DishDetailsModel.fromFirestore({
@@ -17,6 +22,15 @@ class DishDetailsModel extends DishDetailsEntity {
       description: (json['description'] as String?)?.trim() ?? '',
       rating: (json['rating'] as num?)?.toDouble() ?? 0,
       ratingsCount: (json['ratingsCount'] as num?)?.toInt() ?? 0,
+    );
+  }
+
+  DishDetailsEntity toEntity() {
+    return DishDetailsEntity(
+      id: id,
+      description: description,
+      rating: rating,
+      ratingsCount: ratingsCount,
     );
   }
 
