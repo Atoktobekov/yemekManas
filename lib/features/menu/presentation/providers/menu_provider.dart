@@ -54,7 +54,7 @@ class MenuProvider extends ChangeNotifier {
     }, (menus) {
       _menus = menus;
       if (_menuRepository.isDataFromCache()) {
-        _message = 'No internet connection. Showing saved data.';
+        _message = 'Нет соединения. Данные загружены из кэша.';
       }
       _status = MenuStatus.loaded;
   });
@@ -71,6 +71,6 @@ class MenuProvider extends ChangeNotifier {
       return failure.message;
     }
 
-    return 'Failed downloading menu. Please try again later';
+    return 'Не получилось загрузить меню. Попробуйте позже.';
   }
 }
