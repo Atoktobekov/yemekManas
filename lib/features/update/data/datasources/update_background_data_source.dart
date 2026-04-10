@@ -21,7 +21,7 @@ class UpdateBackgroundDataSource {
       url: url,
       savedDir: baseDir.path,
       fileName: 'update_bundle.zip',
-      showNotification: true,
+      showNotification: false,
       openFileFromNotification: false,
       requiresStorageNotLow: true,
     );
