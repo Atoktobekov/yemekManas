@@ -13,14 +13,12 @@ subprojects {
     project.layout.buildDirectory.value(newSubprojectBuildDir)
     project.evaluationDependsOn(":app")
 
-    project.tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
-        kotlinOptions {
-            jvmTarget = "11"
+    if (project.name == "flutter_downloader") {
+        project.tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
+            kotlinOptions {
+                jvmTarget = "11"
+            }
         }
-    }
-    project.tasks.withType<JavaCompile> {
-        sourceCompatibility = "11"
-        targetCompatibility = "11"
     }
 }
 
