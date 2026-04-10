@@ -29,6 +29,15 @@ class UpdateProvider extends ChangeNotifier {
 
   UpdateTaskState get taskState => _taskState;
 
+  bool get _hasOngoingOrPendingUpdate =>
+      _taskState.status == UpdateTaskStatus.queued ||
+      _taskState.status == UpdateTaskStatus.downloading ||
+      _taskState.status == UpdateTaskStatus.extracting ||
+      _taskState.status == UpdateTaskStatus.interrupted ||
+      _taskState.status == UpdateTaskStatus.readyToInstall ||
+      _taskState.status == UpdateTaskStatus.installing ||
+      _taskState.status == UpdateTaskStatus.completed;
+
   bool get isBusy =>
       _taskState.status == UpdateTaskStatus.downloading ||
       _taskState.status == UpdateTaskStatus.extracting ||
@@ -79,6 +88,11 @@ class UpdateProvider extends ChangeNotifier {
   }
 
   Future<void> checkForUpdate() async {
+    if (_hasOngoingOrPendingUpdate) {
+      _talker.info('[UpdateProvider] skipping check dialog: task status is ${_taskState.status.name}');
+      return;
+    }
+
     _talker.info('[UpdateProvider] checking for updates');
     final result = await _checkForUpdateUseCase();
 

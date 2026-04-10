@@ -28,6 +28,13 @@ class UpdateNotificationService {
   }
 
   Future<void> showState(UpdateTaskState state) async {
+    if (state.status == UpdateTaskStatus.queued ||
+        state.status == UpdateTaskStatus.downloading) {
+      // Download progress is already handled by flutter_downloader's native notification.
+      await clear();
+      return;
+    }
+
     final (title, body, progress, indeterminate) = _mapState(state);
 
     final android = AndroidNotificationDetails(

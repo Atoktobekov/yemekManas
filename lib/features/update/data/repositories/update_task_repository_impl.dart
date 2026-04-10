@@ -279,6 +279,7 @@ class UpdateTaskRepositoryImpl implements UpdateTaskRepository {
           );
         }
 
+        await backgroundDataSource.removeTask(task.taskId);
         return current.copyWith(
           status: UpdateTaskStatus.interrupted,
           failureReason: 'Скачивание прервано. Нажмите обновить снова.',

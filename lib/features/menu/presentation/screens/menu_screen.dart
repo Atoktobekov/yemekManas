@@ -34,14 +34,14 @@ class _MenuScreenState extends State<MenuScreen> with TickerProviderStateMixin {
     _fadeController = AnimationController(vsync: this, duration: const Duration(milliseconds: 600));
     _fadeAnimation = CurvedAnimation(parent: _fadeController, curve: Curves.easeInOut);
 
-    WidgetsBinding.instance.addPostFrameCallback((_) {
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
       final menuProvider = context.read<MenuProvider>();
       final updateProvider = context.read<UpdateProvider>();
 
       if (menuProvider.status == MenuStatus.initial) {
         menuProvider.fetchMenu();
       }
-      updateProvider.restoreTaskIfNeeded();
+      await updateProvider.restoreTaskIfNeeded();
       updateProvider.checkForUpdate();
     });
   }
