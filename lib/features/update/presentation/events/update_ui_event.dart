@@ -12,8 +12,9 @@ class ShowUpdateDialog extends UpdateUiEvent {
 
 class ShowPermissionExplanation extends UpdateUiEvent {
   final String url;
+  final String latestVersion;
 
-  ShowPermissionExplanation(this.url);
+  ShowPermissionExplanation(this.url, this.latestVersion);
 }
 
 class ShowInstallDialog extends UpdateUiEvent {
