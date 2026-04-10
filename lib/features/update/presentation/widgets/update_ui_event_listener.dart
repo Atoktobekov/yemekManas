@@ -43,7 +43,7 @@ class _UpdateUiEventListenerState extends State<UpdateUiEventListener> {
     } else if (event is ShowPermissionExplanation) {
       _showPermissionExplanationDialog(context).then((isConfirmed) {
         if (isConfirmed) {
-          updateProvider.proceedWithPermissionRequest(event.url);
+          updateProvider.proceedWithPermissionRequest(url: event.url, latestVersion: event.latestVersion);
         }
       });
     } else if (event is ShowInstallDialog) {
@@ -100,7 +100,7 @@ class _UpdateUiEventListenerState extends State<UpdateUiEventListener> {
           TextButton(
             onPressed: () {
               Navigator.of(dialogContext).pop();
-              updateProvider.requestPermissionAndStartDownload(updateInfo.updateUrl);
+              updateProvider.requestPermissionAndStartDownload(url: updateInfo.updateUrl, latestVersion: updateInfo.latestVersion);
             },
             child: const Text('Обновить'),
           ),

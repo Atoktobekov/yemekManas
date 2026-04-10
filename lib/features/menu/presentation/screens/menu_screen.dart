@@ -41,6 +41,7 @@ class _MenuScreenState extends State<MenuScreen> with TickerProviderStateMixin {
       if (menuProvider.status == MenuStatus.initial) {
         menuProvider.fetchMenu();
       }
+      updateProvider.restoreTaskIfNeeded();
       updateProvider.checkForUpdate();
     });
   }
