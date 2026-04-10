@@ -41,7 +41,9 @@ class UpdateTaskRepositoryImpl implements UpdateTaskRepository {
     required String targetVersion,
   }) async {
     final current = localDataSource.readState();
+    talker.info('[UpdateTaskRepository] startUpdate requested for v$targetVersion');
     if (_isActive(current.status)) {
+      talker.warning('[UpdateTaskRepository] active task already exists: ${current.status.name}');
       return current;
     }
 
@@ -55,6 +57,7 @@ class UpdateTaskRepositoryImpl implements UpdateTaskRepository {
     await _emitState(queued);
 
     final taskId = await backgroundDataSource.enqueueDownload(url);
+    talker.info('[UpdateTaskRepository] download enqueued: $taskId');
     final downloading = queued.copyWith(
       status: UpdateTaskStatus.downloading,
       downloaderTaskId: taskId,
@@ -68,6 +71,7 @@ class UpdateTaskRepositoryImpl implements UpdateTaskRepository {
   @override
   Future<UpdateTaskState> recover() async {
     final state = localDataSource.readState();
+    talker.info('[UpdateTaskRepository] recovering task with state: ${state.status.name}');
     if (state.status == UpdateTaskStatus.idle) {
       return state;
     }
@@ -120,6 +124,8 @@ class UpdateTaskRepositoryImpl implements UpdateTaskRepository {
       return failed;
     }
 
+    talker.info('[UpdateTaskRepository] finalize download and extract');
+
     final extracting = current.copyWith(
       status: UpdateTaskStatus.extracting,
       failureReason: null,
@@ -141,6 +147,7 @@ class UpdateTaskRepositoryImpl implements UpdateTaskRepository {
       }
 
       final apkFile = await backgroundDataSource.extractZipToApk(zipPath: zipPath);
+      talker.info('[UpdateTaskRepository] apk extracted: ${apkFile.path}');
 
       final ready = extracting.copyWith(
         status: UpdateTaskStatus.readyToInstall,
@@ -174,6 +181,7 @@ class UpdateTaskRepositoryImpl implements UpdateTaskRepository {
 
   @override
   Future<void> installApk(File apkFile) async {
+    talker.info('[UpdateTaskRepository] install requested for ${apkFile.path}');
     if (!await apkFile.exists()) {
       throw Exception('APK файл не найден для установки.');
     }
@@ -290,6 +298,7 @@ class UpdateTaskRepositoryImpl implements UpdateTaskRepository {
 
   Future<void> _emitState(UpdateTaskState state) async {
     await localDataSource.saveState(state);
+    talker.info('[UpdateTaskRepository] state persisted: ${state.status.name}, progress=${(state.progress * 100).toStringAsFixed(0)}%');
     await notificationService.showState(state);
     _controller.add(state);
   }

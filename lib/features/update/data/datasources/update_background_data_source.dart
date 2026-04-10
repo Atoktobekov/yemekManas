@@ -2,7 +2,6 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:ManasYemek/core/error/exceptions.dart';
-import 'package:ManasYemek/features/update/domain/entities/update_task_state.dart';
 import 'package:flutter_archive/flutter_archive.dart';
 import 'package:flutter_downloader/flutter_downloader.dart';
 import 'package:path_provider/path_provider.dart';
@@ -15,6 +14,8 @@ class UpdateBackgroundDataSource {
 
   Future<String> enqueueDownload(String url) async {
     final baseDir = await _ensureBaseDir();
+
+    talker.info('[UpdateBackgroundDataSource] enqueue download: $url');
 
     final taskId = await FlutterDownloader.enqueue(
       url: url,
@@ -33,10 +34,12 @@ class UpdateBackgroundDataSource {
   }
 
   Future<List<DownloadTask>> loadTasks() async {
-    return (await FlutterDownloader.loadTasks()) ?? <DownloadTask>[];
+    final tasks = (await FlutterDownloader.loadTasks()) ?? <DownloadTask>[];
+    return tasks;
   }
 
   Future<void> removeTask(String taskId) async {
+    talker.info('[UpdateBackgroundDataSource] remove task: $taskId');
     await FlutterDownloader.remove(taskId: taskId, shouldDeleteContent: false);
   }
 
@@ -72,6 +75,7 @@ class UpdateBackgroundDataSource {
     }
     await extractDir.create(recursive: true);
 
+    talker.info('[UpdateBackgroundDataSource] extracting zip: $zipPath');
     await ZipFile.extractToDirectory(zipFile: zip, destinationDir: extractDir);
 
     final apk = await _findApkRecursive(extractDir);

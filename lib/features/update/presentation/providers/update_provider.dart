@@ -68,22 +68,28 @@ class UpdateProvider extends ChangeNotifier {
     _restored = true;
 
     try {
+      _talker.info('[UpdateProvider] restoring update task state');
       _taskState = await _recoverUpdateTaskUseCase();
       _emitUiEventForState(_taskState);
       notifyListeners();
+      _talker.info('[UpdateProvider] restore completed with status: ${_taskState.status.name}');
     } catch (e, st) {
       _talker.handle(e, st, '[UpdateProvider] failed to recover update task');
     }
   }
 
   Future<void> checkForUpdate() async {
+    _talker.info('[UpdateProvider] checking for updates');
     final result = await _checkForUpdateUseCase();
 
     result.fold((failure) {
       _talker.error('[UpdateProvider] failed to check updates: ${failure.message}');
     }, (updateInfo) {
       if (updateInfo != null) {
+        _talker.info('[UpdateProvider] update found: v${updateInfo.latestVersion}, force=${updateInfo.isForceUpdate}');
         uiEvent.value = ShowUpdateDialog(updateInfo);
+      } else {
+        _talker.info('[UpdateProvider] update not required');
       }
     });
   }
@@ -93,6 +99,7 @@ class UpdateProvider extends ChangeNotifier {
     required String latestVersion,
   }) async {
     final status = await Permission.requestInstallPackages.status;
+    _talker.info('[UpdateProvider] install unknown apps permission status: $status');
     if (status.isGranted) {
       await _startDownload(url: url, latestVersion: latestVersion);
     } else {
@@ -105,6 +112,7 @@ class UpdateProvider extends ChangeNotifier {
     required String latestVersion,
   }) async {
     final status = await Permission.requestInstallPackages.request();
+    _talker.info('[UpdateProvider] install permission request result: $status');
 
     if (status.isGranted) {
       await _startDownload(url: url, latestVersion: latestVersion);
@@ -120,21 +128,44 @@ class UpdateProvider extends ChangeNotifier {
     required String latestVersion,
   }) async {
     try {
+      await _requestNotificationPermissionIfNeeded();
+      _talker.info('[UpdateProvider] starting update download for v$latestVersion');
       final state = await _startUpdateUseCase(
         url: url,
         targetVersion: latestVersion,
       );
       _taskState = state;
       notifyListeners();
+      _talker.info('[UpdateProvider] download task started: ${state.downloaderTaskId}');
     } catch (e, st) {
       _talker.handle(e, st, '[UpdateProvider] error while starting update');
       uiEvent.value = ShowSnackbar('Ошибка обновления: $e');
     }
   }
 
+  Future<void> _requestNotificationPermissionIfNeeded() async {
+    if (!Platform.isAndroid) return;
+
+    final status = await Permission.notification.status;
+    _talker.info('[UpdateProvider] notification permission status: $status');
+
+    if (status.isGranted) return;
+
+    final requestResult = await Permission.notification.request();
+    _talker.info('[UpdateProvider] notification permission request result: $requestResult');
+
+    if (!requestResult.isGranted) {
+      uiEvent.value = ShowSnackbar(
+        'Без разрешения на уведомления статус обновления в шторке может не отображаться.',
+      );
+    }
+  }
+
   Future<void> installApk(File apkFile) async {
     try {
+      _talker.info('[UpdateProvider] launching installer: ${apkFile.path}');
       await _installDownloadedUpdateUseCase(apkFile);
+      _talker.info('[UpdateProvider] installer launched successfully');
     } catch (e, st) {
       _talker.handle(e, st, '[UpdateProvider] failed to install apk');
       uiEvent.value = ShowSnackbar('Не удалось открыть установщик: $e');
@@ -143,6 +174,9 @@ class UpdateProvider extends ChangeNotifier {
 
   void _bindTaskWatcher() {
     _taskSubscription = _updateTaskRepository.watchTask().listen((state) {
+      _talker.info(
+        '[UpdateProvider] task state: ${state.status.name}, progress=${(state.progress * 100).toStringAsFixed(0)}%',
+      );
       _taskState = state;
       _emitUiEventForState(state);
       notifyListeners();
@@ -153,6 +187,7 @@ class UpdateProvider extends ChangeNotifier {
     if (state.status == UpdateTaskStatus.readyToInstall && state.apkPath != null) {
       final apkFile = File(state.apkPath!);
       if (apkFile.existsSync()) {
+        _talker.info('[UpdateProvider] apk ready to install: ${apkFile.path}');
         uiEvent.value = ShowInstallDialog(apkFile);
       }
       return;
@@ -161,6 +196,7 @@ class UpdateProvider extends ChangeNotifier {
     if (state.status == UpdateTaskStatus.failed ||
         state.status == UpdateTaskStatus.interrupted) {
       if (state.failureReason != null && state.failureReason!.isNotEmpty) {
+        _talker.warning('[UpdateProvider] task issue: ${state.failureReason}');
         uiEvent.value = ShowSnackbar(state.failureReason!);
       }
     }
