@@ -39,7 +39,7 @@ class UpdateNotificationService {
       onlyAlertOnce: true,
       showProgress: progress != null || indeterminate,
       maxProgress: 100,
-      progress: progress,
+      progress: progress ?? 0,
       indeterminate: indeterminate,
     );
 
