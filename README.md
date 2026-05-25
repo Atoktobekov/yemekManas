@@ -39,8 +39,10 @@
 ## 📸 Screenshots
 
 <p align="center">
-  <img src="screenshots/Yemekhane2.png" width="35%">
-  <img src="screenshots/Yemekhane1.png" width="35%">
+  <img src="screenshots/n1.png" width="25%">
+  <img src="screenshots/n2.png" width="25%">
+  <img src="screenshots/n3.png" width="25%">
+  <img src="screenshots/n4.png" width="25%">
 </p>
 
 ---
